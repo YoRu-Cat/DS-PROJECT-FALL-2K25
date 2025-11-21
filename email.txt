@@ -1,0 +1,12 @@
+emailId,sender,receiver,subject,content,timestamp,isRead,isSpam,priority,folder
+E001,john_doe@lhr.nu.edu.pk,sarah_smith@lhr.nu.edu.pk,Meeting Update,Hi Sarah, let's meet tomorrow at 2 PM to discuss the project.,1715431200,true,false,2,inbox
+E002,sarah_smith@lhr.nu.edu.pk,john_doe@lhr.nu.edu.pk,Re: Meeting Update,That works for me John. I'll bring the project documents.,1715434800,true,false,2,inbox
+E003,mike_wilson@lhr.nu.edu.pk,emma_jones@lhr.nu.edu.pk,Weekend Plans,Hey Emma, are you free this weekend for the concert?,1715521200,false,false,1,inbox
+E004,admin@lhr.nu.edu.pk,john_doe@lhr.nu.edu.pk,System Maintenance,Dear user, system maintenance scheduled for Sunday.,1715439600,false,false,3,inbox
+E005,john_doe@lhr.nu.edu.pk,mike_wilson@lhr.nu.edu.pk,Draft: Project Ideas,Here are some ideas for our new project...,1715443200,false,false,1,drafts
+E006,winner_prize@external.com,john_doe@lhr.nu.edu.pk,You Won $1000!,Claim your Free $1000 prize now! Limited time offer!,1715454000,false,true,0,spam
+E007,bonus_team@external.com,sarah_smith@lhr.nu.edu.pk,Exclusive Bonus Offer,Get your Guaranteed profit with our exclusive program!,1715461200,false,true,0,spam
+E008,emma_jones@lhr.nu.edu.pk,lisa_taylor@lhr.nu.edu.pk,Birthday Party,Don't forget about my birthday party this Friday!,1715472000,false,false,2,inbox
+E009,david_brown@lhr.nu.edu.pk,alex_chen@lhr.nu.edu.pk,Urgent: Document Review,Need your urgent review on the attached document.,1715482800,false,false,3,inbox
+E010,lisa_taylor@lhr.nu.edu.pk,admin@lhr.nu.edu.pk,Account Issue,Having trouble accessing my account settings.,1715493600,false,false,2,inboxE1001,tech.niko.coding@gmail.com,asdf,sdf,asedfdf,1763713222,0,0,1,Sent
+E1002,tech.niko.coding@gmail.com,tech.niko.coding@gmail.com,nigga,call niga,1763713275,0,0,1,Sent
