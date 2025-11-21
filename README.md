@@ -186,8 +186,8 @@ user1,user2,connectionStrength,connectionDate
 
 ## Author
 
-Data Structures Course Project
-Teaching Assistant: Syed Aoun Haider Sherazi
+24L-0602
+YoRu-Cat
 
 ## Date
 
