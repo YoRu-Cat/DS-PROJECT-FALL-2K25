@@ -77,43 +77,73 @@ void handleAuthentication(EmailSystem &system)
   {
     int choice;
     displayMainMenu();
-    cin >> choice;
 
-    switch (choice)
+    if (!(cin >> choice))
     {
-    case 1:
-    {
-      string username, email, password;
-      cout << "\n=== Create Account ===" << endl;
-      cout << "Username: ";
-      cin.ignore();
-      getline(cin, username);
-      cout << "Email: ";
-      getline(cin, email);
-      cout << "Password: ";
-      getline(cin, password);
-
-      system.createAccount(username, email, password);
-      break;
+      cin.clear();
+      cin.ignore(10000, '\n');
+      cout << "Invalid input! Please enter a number." << endl;
+      continue;
     }
-    case 2:
-    {
-      string email, password;
-      cout << "\n=== Login ===" << endl;
-      cout << "Email: ";
-      cin.ignore();
-      getline(cin, email);
-      cout << "Password: ";
-      getline(cin, password);
 
-      system.login(email, password);
-      break;
+    try
+    {
+      switch (choice)
+      {
+      case 1:
+      {
+        string username, email, password;
+        cout << "\n=== Create Account ===" << endl;
+        cout << "Username: ";
+        cin.ignore();
+        getline(cin, username);
+        cout << "Email: ";
+        getline(cin, email);
+        cout << "Password: ";
+        getline(cin, password);
+
+        if (username.empty() || email.empty() || password.empty())
+        {
+          cout << "Error: All fields are required!" << endl;
+          break;
+        }
+
+        system.createAccount(username, email, password);
+        break;
+      }
+      case 2:
+      {
+        string email, password;
+        cout << "\n=== Login ===" << endl;
+        cout << "Email: ";
+        cin.ignore();
+        getline(cin, email);
+        cout << "Password: ";
+        getline(cin, password);
+
+        if (email.empty() || password.empty())
+        {
+          cout << "Error: Email and password are required!" << endl;
+          break;
+        }
+
+        system.login(email, password);
+        break;
+      }
+      case 3:
+        cout << "Thank you for using Email Management System!" << endl;
+        exit(0);
+      default:
+        cout << "Invalid choice!" << endl;
+      }
     }
-    case 3:
-      cout << "Thank you for using Email Management System!" << endl;
-      exit(0);
-    default:
-      cout << "Invalid choice!" << endl;
+    catch (const char *msg)
+    {
+      cout << "Error: " << msg << endl;
+    }
+    catch (...)
+    {
+      cout << "An error occurred!" << endl;
     }
   }
 }
@@ -124,23 +154,41 @@ void handleContactsMenu(EmailSystem &system)
   do
   {
     displayContactsMenu();
-    cin >> choice;
 
-    switch (choice)
+    if (!(cin >> choice))
     {
-    case 1:
-      system.addContact();
-      break;
-    case 2:
-      system.viewContacts();
-      break;
-    case 3:
-      system.viewRecentContacts();
-      break;
-    case 4:
-      return;
-    default:
-      cout << "Invalid choice!" << endl;
+      cin.clear();
+      cin.ignore(10000, '\n');
+      cout << "Invalid input! Please enter a number." << endl;
+      continue;
+    }
+
+    try
+    {
+      switch (choice)
+      {
+      case 1:
+        system.addContact();
+        break;
+      case 2:
+        system.viewContacts();
+        break;
+      case 3:
+        system.viewRecentContacts();
+        break;
+      case 4:
+        return;
+      default:
+        cout << "Invalid choice!" << endl;
+      }
+    }
+    catch (const char *msg)
+    {
+      cout << "Error: " << msg << endl;
+    }
+    catch (...)
+    {
+      cout << "An error occurred!" << endl;
     }
   } while (choice != 4);
 }
@@ -151,32 +199,64 @@ void handleConnectionsMenu(EmailSystem &system)
   do
   {
     displayConnectionsMenu();
-    cin >> choice;
 
-    switch (choice)
+    if (!(cin >> choice))
     {
-    case 1:
-    {
-      string email;
-      cout << "Enter user email to connect: ";
-      cin.ignore();
-      getline(cin, email);
-      system.addSocialConnection(email);
-      break;
+      cin.clear();
+      cin.ignore(10000, '\n');
+      cout << "Invalid input! Please enter a number." << endl;
+      continue;
     }
-    case 2:
+
+    try
     {
-      string email;
-      cout << "Enter user email: ";
-      cin.ignore();
-      getline(cin, email);
-      system.viewMutualConnections(email);
-      break;
+      switch (choice)
+      {
+      case 1:
+      {
+        string email;
+        cout << "Enter user email to connect: ";
+        cin.ignore();
+        getline(cin, email);
+        if (!email.empty())
+        {
+          system.addSocialConnection(email);
+        }
+        else
+        {
+          cout << "Error: Email cannot be empty!" << endl;
+        }
+        break;
+      }
+      case 2:
+      {
+        string email;
+        cout << "Enter user email: ";
+        cin.ignore();
+        getline(cin, email);
+        if (!email.empty())
+        {
+          system.viewMutualConnections(email);
+        }
+        else
+        {
+          cout << "Error: Email cannot be empty!" << endl;
+        }
+        break;
+      }
+      case 3:
+        return;
+      default:
+        cout << "Invalid choice!" << endl;
+      }
     }
-    case 3:
-      return;
-    default:
-      cout << "Invalid choice!" << endl;
+    catch (const char *msg)
+    {
+      cout << "Error: " << msg << endl;
+    }
+    catch (...)
+    {
+      cout << "An error occurred!" << endl;
     }
   } while (choice != 3);
 }
@@ -187,68 +267,86 @@ void handleDashboard(EmailSystem &system)
   do
   {
     displayDashboard();
-    cin >> choice;
 
-    switch (choice)
+    if (!(cin >> choice))
     {
-    case 1:
-      system.composeEmail();
-      break;
-    case 2:
-      system.viewFolder("Inbox");
-      break;
-    case 3:
-      system.viewInboxByPriority();
-      break;
-    case 4:
-      system.viewFolder("Sent");
-      break;
-    case 5:
-      system.viewFolder("Drafts");
-      break;
-    case 6:
-      system.viewFolder("Spam");
-      break;
-    case 7:
-      system.viewFolder("Trash");
-      break;
-    case 8:
-      system.viewFolder("Important");
-      break;
-    case 9:
-      system.searchEmail();
-      break;
-    case 10:
-    {
-      string emailId, folder;
-      cout << "Enter email ID: ";
-      cin >> emailId;
-      cout << "Enter folder name: ";
-      cin >> folder;
-      system.deleteEmail(emailId, folder);
-      break;
+      cin.clear();
+      cin.ignore(10000, '\n');
+      cout << "Invalid input! Please enter a number." << endl;
+      continue;
     }
-    case 11:
-      system.recoverLastDeleted();
-      break;
-    case 12:
-      system.emptyTrash();
-      break;
-    case 13:
-      handleContactsMenu(system);
-      break;
-    case 14:
-      handleConnectionsMenu(system);
-      break;
-    case 15:
-      system.displaySystemStats();
-      break;
-    case 16:
-      system.logout();
-      cout << "Logged out successfully!" << endl;
-      return;
-    default:
-      cout << "Invalid choice!" << endl;
+
+    try
+    {
+      switch (choice)
+      {
+      case 1:
+        system.composeEmail();
+        break;
+      case 2:
+        system.viewFolder("Inbox");
+        break;
+      case 3:
+        system.viewInboxByPriority();
+        break;
+      case 4:
+        system.viewFolder("Sent");
+        break;
+      case 5:
+        system.viewFolder("Drafts");
+        break;
+      case 6:
+        system.viewFolder("Spam");
+        break;
+      case 7:
+        system.viewFolder("Trash");
+        break;
+      case 8:
+        system.viewFolder("Important");
+        break;
+      case 9:
+        system.searchEmail();
+        break;
+      case 10:
+      {
+        string emailId, folder;
+        cout << "Enter email ID: ";
+        cin >> emailId;
+        cout << "Enter folder name: ";
+        cin >> folder;
+        system.deleteEmail(emailId, folder);
+        break;
+      }
+      case 11:
+        system.recoverLastDeleted();
+        break;
+      case 12:
+        system.emptyTrash();
+        break;
+      case 13:
+        handleContactsMenu(system);
+        break;
+      case 14:
+        handleConnectionsMenu(system);
+        break;
+      case 15:
+        system.displaySystemStats();
+        break;
+      case 16:
+        system.logout();
+        cout << "Logged out successfully!" << endl;
+        return;
+      default:
+        cout << "Invalid choice!" << endl;
+      }
+    }
+    catch (const char *msg)
+    {
+      cout << "Error: " << msg << endl;
+    }
+    catch (...)
+    {
+      cout << "An error occurred!" << endl;
     }
   } while (choice != 16);
 }

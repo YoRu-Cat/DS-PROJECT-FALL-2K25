@@ -212,7 +212,25 @@ public:
     cout << "Content: ";
     getline(cin, content);
     cout << "Priority (0-5): ";
-    cin >> priority;
+
+    if (!(cin >> priority))
+    {
+      cin.clear();
+      cin.ignore(10000, '\n');
+      cout << "Invalid priority! Using default 0." << endl;
+      priority = 0;
+    }
+    else if (priority < 0 || priority > 5)
+    {
+      cout << "Priority out of range! Using default 0." << endl;
+      priority = 0;
+    }
+
+    if (to.empty())
+    {
+      cout << "Error: Recipient is required!" << endl;
+      return;
+    }
 
     Email newEmail(generateEmailId(), currentUser->getEmail(), to, subject, content);
     newEmail.setPriority(priority);
@@ -228,6 +246,7 @@ public:
     {
       newEmail.setIsSpam(true);
       newEmail.setFolder("Spam");
+      cout << "Warning: Email contains spam keywords!" << endl;
     }
 
     int choice;
@@ -235,7 +254,14 @@ public:
     cout << "2. Save as Draft" << endl;
     cout << "3. Schedule for Later" << endl;
     cout << "Choice: ";
-    cin >> choice;
+
+    if (!(cin >> choice))
+    {
+      cin.clear();
+      cin.ignore(10000, '\n');
+      cout << "Invalid choice! Email discarded." << endl;
+      return;
+    }
 
     switch (choice)
     {
@@ -255,6 +281,8 @@ public:
       scheduledEmails->enqueue(newEmail);
       cout << "Email scheduled!" << endl;
       break;
+    default:
+      cout << "Invalid choice! Email discarded." << endl;
     }
   }
 
@@ -389,6 +417,17 @@ public:
     getline(cin, email);
     cout << "Enter contact phone (optional): ";
     getline(cin, phone);
+
+    if (name.empty())
+    {
+      cout << "Error: Contact name is required!" << endl;
+      return;
+    }
+    if (email.empty())
+    {
+      cout << "Error: Contact email is required!" << endl;
+      return;
+    }
 
     Contact newContact("C" + to_string(time(0)), name, email, phone);
     currentUser->addContact(newContact);
