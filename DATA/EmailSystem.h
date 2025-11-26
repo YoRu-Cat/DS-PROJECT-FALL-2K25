@@ -266,11 +266,19 @@ public:
     switch (choice)
     {
     case 1:
-      newEmail.setFolder("Sent");
-      sent->addEmail(newEmail);
+      if (newEmail.getIsSpam())
+      {
+        spam->addEmail(newEmail);
+        cout << "Email moved to Spam folder due to spam content!" << endl;
+      }
+      else
+      {
+        newEmail.setFolder("Sent");
+        sent->addEmail(newEmail);
+        currentUser->addRecentContact(to);
+        cout << "Email sent successfully!" << endl;
+      }
       fileHandler->saveEmail(&newEmail);
-      currentUser->addRecentContact(to);
-      cout << "Email sent successfully!" << endl;
       break;
     case 2:
       newEmail.setFolder("Drafts");

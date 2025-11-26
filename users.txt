@@ -7,3 +7,4 @@ U007,lisa_taylor,lisa_taylor@lhr.nu.edu.pk,lisa654321,1763713145,1763713145
 U003,mike_wilson,mike_wilson@lhr.nu.edu.pk,mikepass789,1763713145,1763713145
 U002,sarah_smith,sarah_smith@lhr.nu.edu.pk,securepass456,1763713145,1763713145
 U1,yoru,tech.niko.coding@gmail.com,@8L4z3YoRu,1763713172,1763713308
+U1,nigga,tech.nikoniga,123,1764158156,1764158156
