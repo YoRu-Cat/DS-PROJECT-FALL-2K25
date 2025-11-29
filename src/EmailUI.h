@@ -22,6 +22,7 @@ enum class Screen
   COMPOSE,
   EMAIL_DETAIL,
   CONTACTS,
+  CONNECTIONS,
   SETTINGS,
   STATS,
   SCHEDULED_EMAILS,
@@ -82,6 +83,14 @@ private:
   Button *addContactButton;
   std::vector<Button *> contactButtons;
 
+  // Connections
+  Button *addConnectionButton;
+  Button *viewConnectionsButton;
+  TextBox *connectionEmailInput;
+  Button *saveConnectionButton;
+  Button *cancelConnectionButton;
+  bool showAddConnectionModal;
+
   // Navigation
   Button *backToDashboardButton;
 
@@ -124,6 +133,7 @@ public:
   void DrawComposeScreen();
   void DrawEmailDetailScreen();
   void DrawContactsScreen();
+  void DrawConnectionsScreen();
   void DrawStatsScreen();
 
   // Screen updaters
@@ -134,6 +144,7 @@ public:
   void UpdateComposeScreen();
   void UpdateEmailDetailScreen();
   void UpdateContactsScreen();
+  void UpdateConnectionsScreen();
   void UpdateStatsScreen();
   void UpdateScheduledEmailsScreen();
   void UpdateActivityLogScreen();

@@ -108,6 +108,7 @@ public:
   {
     fileHandler->loadSpamWords(spamWords);
     fileHandler->loadUsers(users);
+    loadAllContactsAndConnections();
     fileHandler->loadSocialGraph(socialGraph);
   }
 
@@ -116,6 +117,58 @@ public:
     fileHandler->saveAllUsers(users);
     fileHandler->saveSocialGraph(socialGraph);
     saveAllEmails();
+    saveAllContactsAndConnections();
+  }
+
+  void saveAllContactsAndConnections()
+  {
+    int maxUsers = 1000;
+    string *keys = new string[maxUsers];
+    User **values = new User *[maxUsers];
+
+    users->getAllEntries(keys, values, maxUsers);
+
+    for (int i = 0; i < users->getSize(); i++)
+    {
+      fileHandler->saveUserContacts(values[i]->getEmail(), values[i]->getContacts());
+
+      GraphNode *node = socialGraph->getNode(values[i]->getEmail());
+      if (node != nullptr)
+      {
+        fileHandler->saveUserConnections(values[i]->getEmail(), &node->adjacentUsers, &node->connectionStrengths);
+      }
+    }
+
+    delete[] keys;
+    delete[] values;
+  }
+
+  void loadAllContactsAndConnections()
+  {
+    int maxUsers = 1000;
+    string *keys = new string[maxUsers];
+    User **values = new User *[maxUsers];
+
+    users->getAllEntries(keys, values, maxUsers);
+
+    for (int i = 0; i < users->getSize(); i++)
+    {
+      fileHandler->loadUserContacts(values[i]->getEmail(), values[i]->getContacts());
+
+      socialGraph->addUser(values[i]->getEmail());
+
+      LinkedList<string> adjacentUsers;
+      LinkedList<int> strengths;
+      fileHandler->loadUserConnections(values[i]->getEmail(), &adjacentUsers, &strengths);
+
+      for (int j = 0; j < adjacentUsers.getSize(); j++)
+      {
+        socialGraph->addConnection(values[i]->getEmail(), adjacentUsers.get(j), strengths.get(j));
+      }
+    }
+
+    delete[] keys;
+    delete[] values;
   }
 
   void saveAllEmails()
@@ -602,6 +655,8 @@ public:
 
   bool isLoggedIn() { return currentUser != nullptr; }
   User *getCurrentUser() { return currentUser; }
+  Graph *getSocialGraph() { return socialGraph; }
+  BST<string, User *> *getUsers() { return users; }
 
   // Method to deliver email to another user's inbox
   bool deliverEmailToUser(const Email &email, const string &recipientEmail)

@@ -34,6 +34,16 @@ private:
     return getUserFolderPath(userEmail) + "/" + folderName + ".txt";
   }
 
+  string getContactsFilePath(const string &userEmail)
+  {
+    return getUserFolderPath(userEmail) + "/contacts.txt";
+  }
+
+  string getConnectionsFilePath(const string &userEmail)
+  {
+    return getUserFolderPath(userEmail) + "/connections.txt";
+  }
+
 public:
   FileHandler()
   {
@@ -278,6 +288,115 @@ public:
       graph->addUser(user2);
       if (!strengthStr.empty())
         graph->addConnection(user1, user2, stoi(strengthStr));
+    }
+    file.close();
+  }
+
+  void saveUserContacts(const string &userEmail, BST<string, Contact> *contacts)
+  {
+    string filePath = getContactsFilePath(userEmail);
+    ofstream file(filePath);
+    if (file.is_open())
+    {
+      file << "ContactId,Name,Email,Phone,InteractionCount" << endl;
+
+      int maxContacts = 1000;
+      string *keys = new string[maxContacts];
+      Contact *values = new Contact[maxContacts];
+
+      contacts->getAllEntries(keys, values, maxContacts);
+
+      for (int i = 0; i < contacts->getSize(); i++)
+      {
+        file << values[i].getContactId() << ","
+             << values[i].getName() << ","
+             << values[i].getEmail() << ","
+             << values[i].getPhone() << ","
+             << values[i].getInteractionCount() << endl;
+      }
+
+      delete[] keys;
+      delete[] values;
+      file.close();
+    }
+  }
+
+  void loadUserContacts(const string &userEmail, BST<string, Contact> *contacts)
+  {
+    string filePath = getContactsFilePath(userEmail);
+    ifstream file(filePath);
+
+    if (!file.is_open())
+    {
+      return;
+    }
+
+    string line;
+    getline(file, line); // Skip header
+
+    while (getline(file, line))
+    {
+      if (line.empty())
+        continue;
+
+      stringstream ss(line);
+      string contactId, name, email, phone, interactionStr;
+
+      getline(ss, contactId, ',');
+      getline(ss, name, ',');
+      getline(ss, email, ',');
+      getline(ss, phone, ',');
+      getline(ss, interactionStr);
+
+      Contact contact(contactId, name, email, phone);
+      contacts->insert(email, contact);
+    }
+    file.close();
+  }
+
+  void saveUserConnections(const string &userEmail, LinkedList<string> *adjacentUsers, LinkedList<int> *strengths)
+  {
+    string filePath = getConnectionsFilePath(userEmail);
+    ofstream file(filePath);
+    if (file.is_open())
+    {
+      file << "ConnectedUserEmail,ConnectionStrength" << endl;
+
+      for (int i = 0; i < adjacentUsers->getSize(); i++)
+      {
+        file << adjacentUsers->get(i) << "," << strengths->get(i) << endl;
+      }
+      file.close();
+    }
+  }
+
+  void loadUserConnections(const string &userEmail, LinkedList<string> *adjacentUsers, LinkedList<int> *strengths)
+  {
+    string filePath = getConnectionsFilePath(userEmail);
+    ifstream file(filePath);
+
+    if (!file.is_open())
+    {
+      return;
+    }
+
+    string line;
+    getline(file, line); // Skip header
+
+    while (getline(file, line))
+    {
+      if (line.empty())
+        continue;
+
+      stringstream ss(line);
+      string connectedEmail, strengthStr;
+
+      getline(ss, connectedEmail, ',');
+      getline(ss, strengthStr);
+
+      adjacentUsers->insert(connectedEmail);
+      if (!strengthStr.empty())
+        strengths->insert(stoi(strengthStr));
     }
     file.close();
   }

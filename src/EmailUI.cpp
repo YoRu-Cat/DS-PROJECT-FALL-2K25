@@ -64,6 +64,12 @@ EmailUI::EmailUI(int width, int height)
   markSpamButton = nullptr;
 
   addContactButton = nullptr;
+  addConnectionButton = nullptr;
+  viewConnectionsButton = nullptr;
+  connectionEmailInput = nullptr;
+  saveConnectionButton = nullptr;
+  cancelConnectionButton = nullptr;
+  showAddConnectionModal = false;
   backToDashboardButton = nullptr;
 
   selectedEmailId = "";
@@ -122,6 +128,11 @@ EmailUI::~EmailUI()
   delete markSpamButton;
 
   delete addContactButton;
+  delete addConnectionButton;
+  delete viewConnectionsButton;
+  delete connectionEmailInput;
+  delete saveConnectionButton;
+  delete cancelConnectionButton;
   delete backToDashboardButton;
 
   for (auto btn : contactButtons)
@@ -194,6 +205,16 @@ void EmailUI::Initialize()
   // Contacts button - positioned at top-right corner
   addContactButton = new Button(Rectangle{screenWidth - 200, 20, 180, 50}, "+ Add Contact", UIColors::SUCCESS);
 
+  // Connections button - positioned at top-right corner
+  addConnectionButton = new Button(Rectangle{screenWidth - 220, 20, 200, 50}, "+ Add Connection", UIColors::SUCCESS);
+
+  // Connection modal components (700x320 modal centered at y=250)
+  float modalX = (screenWidth - 700) / 2;
+  float modalY = 250;
+  connectionEmailInput = new TextBox(Rectangle{modalX + 50, modalY + 130, 600, 50}, "Connection Email");
+  saveConnectionButton = new Button(Rectangle{modalX + 40, modalY + 230, 310, 55}, "Add Connection", UIColors::PRIMARY);
+  cancelConnectionButton = new Button(Rectangle{modalX + 360, modalY + 230, 300, 55}, "Cancel", UIColors::SECONDARY);
+
   // Back to dashboard button
   backToDashboardButton = new Button(Rectangle{30, 30, 150, 50}, "← Back", UIColors::SECONDARY);
 }
@@ -231,6 +252,9 @@ void EmailUI::Update(float deltaTime)
     break;
   case Screen::CONTACTS:
     UpdateContactsScreen();
+    break;
+  case Screen::CONNECTIONS:
+    UpdateConnectionsScreen();
     break;
   case Screen::STATS:
     UpdateStatsScreen();
@@ -282,6 +306,9 @@ void EmailUI::Draw()
     break;
   case Screen::CONTACTS:
     DrawContactsScreen();
+    break;
+  case Screen::CONNECTIONS:
+    DrawConnectionsScreen();
     break;
   case Screen::STATS:
     DrawStatsScreen();
@@ -596,8 +623,8 @@ void EmailUI::DrawMainDashboard()
 void EmailUI::DrawComposeScreen()
 {
   // Draw sidebar with semi-transparent white background
-  const char *menuItems[] = {"Inbox", "Sent", "Drafts", "Spam", "Trash", "Important", "Contacts", "Stats"};
-  sidebar->Draw(menuItems, 8);
+  const char *menuItems[] = {"Inbox", "Sent", "Drafts", "Spam", "Trash", "Important", "Contacts", "Connections", "Stats"};
+  sidebar->Draw(menuItems, 9);
 
   // Header - semi-transparent white
   DrawRectangle(sidebarWidth, 0, screenWidth - sidebarWidth, 90, {255, 255, 255, 40});
@@ -647,8 +674,8 @@ void EmailUI::DrawEmailDetailScreen()
   }
 
   // Draw sidebar
-  const char *menuItems[] = {"Inbox", "Sent", "Drafts", "Spam", "Trash", "Important", "Contacts", "Stats"};
-  sidebar->Draw(menuItems, 8);
+  const char *menuItems[] = {"Inbox", "Sent", "Drafts", "Spam", "Trash", "Important", "Contacts", "Connections", "Stats"};
+  sidebar->Draw(menuItems, 9);
 
   // Top buttons header - semi-transparent white
   DrawRectangle(sidebarWidth, 0, screenWidth - sidebarWidth, 90, {255, 255, 255, 40});
@@ -705,8 +732,8 @@ void EmailUI::DrawEmailDetailScreen()
 void EmailUI::DrawContactsScreen()
 {
   // Draw sidebar
-  const char *menuItems[] = {"Inbox", "Sent", "Drafts", "Spam", "Trash", "Important", "Contacts", "Stats"};
-  sidebar->Draw(menuItems, 8);
+  const char *menuItems[] = {"Inbox", "Sent", "Drafts", "Spam", "Trash", "Important", "Contacts", "Connections", "Stats"};
+  sidebar->Draw(menuItems, 9);
 
   // Header - semi-transparent white
   DrawRectangle(sidebarWidth, 0, screenWidth - sidebarWidth, 90, {255, 255, 255, 40});
@@ -721,11 +748,113 @@ void EmailUI::DrawContactsScreen()
   DrawTextSpaced("Contact management coming soon...", sidebarWidth + 40, 150, 20, {255, 255, 255, 255});
 }
 
+void EmailUI::DrawConnectionsScreen()
+{
+  // Draw sidebar
+  const char *menuItems[] = {"Inbox", "Sent", "Drafts", "Spam", "Trash", "Important", "Contacts", "Connections", "Stats"};
+  sidebar->Draw(menuItems, 9);
+
+  // Header
+  DrawRectangle(sidebarWidth, 0, screenWidth - sidebarWidth, 90, {255, 255, 255, 40});
+  DrawRectangleLinesEx(Rectangle{(float)sidebarWidth, 0, (float)(screenWidth - sidebarWidth), 90}, 2, {255, 255, 255, 180});
+
+  DrawTextSpaced("My Connections", sidebarWidth + 40, 30, 36, {255, 255, 255, 255});
+  DrawLine(sidebarWidth + 20, 80, screenWidth - 20, 80, UIColors::BORDER);
+
+  if (emailSystem->isLoggedIn() && emailSystem->getCurrentUser())
+  {
+    User *currentUser = emailSystem->getCurrentUser();
+    GraphNode *node = emailSystem->getSocialGraph()->getNode(currentUser->getEmail());
+
+    float yPos = 150;
+    float xPos = sidebarWidth + 40;
+
+    if (node == nullptr || node->adjacentUsers.getSize() == 0)
+    {
+      DrawTextSpaced("No connections yet. Add connections to expand your network!",
+                     xPos, yPos, 20, {200, 200, 200, 255});
+    }
+    else
+    {
+      DrawTextSpaced(TextFormat("Total Connections: %d", node->adjacentUsers.getSize()),
+                     xPos, yPos, 22, {255, 255, 255, 255});
+      yPos += 50;
+
+      for (int i = 0; i < node->adjacentUsers.getSize(); i++)
+      {
+        string connectedEmail = node->adjacentUsers.get(i);
+        int strength = node->connectionStrengths.get(i);
+
+        DrawRectangle(xPos - 10, yPos - 5, screenWidth - sidebarWidth - 80, 90, {255, 255, 255, 30});
+        DrawRectangleLinesEx(Rectangle{xPos - 10, yPos - 5, (float)(screenWidth - sidebarWidth - 80), 90},
+                             1, {255, 255, 255, 100});
+
+        DrawTextSpaced(connectedEmail.c_str(), xPos, yPos, 20, {255, 255, 255, 255});
+        DrawTextSpaced(TextFormat("Connection Strength: %d", strength), xPos, yPos + 25, 16, {180, 180, 255, 255});
+
+        LinkedList<string> mutuals = emailSystem->getSocialGraph()->getMutualConnections(
+            currentUser->getEmail(), connectedEmail);
+
+        if (mutuals.getSize() > 0)
+        {
+          DrawTextSpaced(TextFormat("%d mutual connection%s", mutuals.getSize(),
+                                    mutuals.getSize() > 1 ? "s" : ""),
+                         xPos, yPos + 50, 16, {150, 255, 150, 255});
+        }
+        else
+        {
+          DrawTextSpaced("No mutual connections", xPos, yPos + 50, 16, {150, 150, 150, 255});
+        }
+
+        // Add disconnect button (optional - can be implemented later)
+        Rectangle disconnectBtn = {xPos + screenWidth - sidebarWidth - 250, yPos + 15, 140, 40};
+        DrawRectangle(disconnectBtn.x, disconnectBtn.y, disconnectBtn.width, disconnectBtn.height, UIColors::DANGER);
+        DrawRectangleLinesEx(disconnectBtn, 2, {255, 255, 255, 100});
+        int btnTextWidth = MeasureText("Remove", 18);
+        DrawText("Remove", disconnectBtn.x + (disconnectBtn.width - btnTextWidth) / 2,
+                 disconnectBtn.y + 11, 18, {255, 255, 255, 255});
+
+        yPos += 100;
+
+        if (yPos > screenHeight - 150)
+          break;
+      }
+    }
+  }
+
+  addConnectionButton->Draw();
+
+  // Add connection modal
+  if (showAddConnectionModal)
+  {
+    DrawRectangle(0, 0, screenWidth, screenHeight, {0, 0, 0, 180});
+
+    float modalWidth = 700;
+    float modalHeight = 320;
+    float modalX = (screenWidth - modalWidth) / 2;
+    float modalY = 250;
+
+    DrawRectangle(modalX, modalY, modalWidth, modalHeight, {35, 35, 45, 255});
+    DrawRectangleLinesEx(Rectangle{modalX, modalY, modalWidth, modalHeight}, 3, {100, 150, 255, 255});
+
+    DrawTextSpaced("Add New Connection", modalX + 40, modalY + 25, 32, {255, 255, 255, 255});
+    DrawLine(modalX + 30, modalY + 70, modalX + modalWidth - 30, modalY + 70, {100, 150, 255, 255});
+
+    DrawTextSpaced("Enter the email address of the user you want to connect with:",
+                   modalX + 50, modalY + 90, 18, {200, 210, 220, 255});
+
+    connectionEmailInput->Draw();
+
+    saveConnectionButton->Draw();
+    cancelConnectionButton->Draw();
+  }
+}
+
 void EmailUI::DrawStatsScreen()
 {
   // Draw sidebar
-  const char *menuItems[] = {"Inbox", "Sent", "Drafts", "Spam", "Trash", "Important", "Contacts", "Stats"};
-  sidebar->Draw(menuItems, 8);
+  const char *menuItems[] = {"Inbox", "Sent", "Drafts", "Spam", "Trash", "Important", "Contacts", "Connections", "Stats"};
+  sidebar->Draw(menuItems, 9);
 
   // Header - semi-transparent white
   DrawRectangle(sidebarWidth, 0, screenWidth - sidebarWidth, 90, {255, 255, 255, 40});
@@ -835,7 +964,7 @@ void EmailUI::UpdateMainDashboard()
   changeBgButton->Update();
 
   // Sidebar navigation
-  const char *menuItems[] = {"Inbox", "Sent", "Drafts", "Spam", "Trash", "Important", "Contacts", "Stats", "Scheduled", "Activity", "Config"};
+  const char *menuItems[] = {("Inbox", "Sent", "Drafts", "Spam", "Trash", "Important", "Contacts", "Connections", "Stats"), "Scheduled", "Activity", "Config"};
   int clicked = sidebar->Update(menuItems, 11);
 
   if (clicked >= 0)
@@ -870,15 +999,18 @@ void EmailUI::UpdateMainDashboard()
       SetScreen(Screen::CONTACTS);
       break;
     case 7:
-      SetScreen(Screen::STATS);
+      SetScreen(Screen::CONNECTIONS);
       break;
     case 8:
-      SetScreen(Screen::SCHEDULED_EMAILS);
+      SetScreen(Screen::STATS);
       break;
     case 9:
-      SetScreen(Screen::ACTIVITY_LOG);
+      SetScreen(Screen::SCHEDULED_EMAILS);
       break;
     case 10:
+      SetScreen(Screen::ACTIVITY_LOG);
+      break;
+    case 11:
       SetScreen(Screen::SYSTEM_CONFIG);
       break;
     }
@@ -1054,8 +1186,8 @@ void EmailUI::UpdateEmailDetailScreen()
 void EmailUI::UpdateContactsScreen()
 {
   // Update sidebar navigation
-  const char *menuItems[] = {"Inbox", "Sent", "Drafts", "Spam", "Trash", "Important", "Contacts", "Stats"};
-  int clicked = sidebar->Update(menuItems, 8);
+  const char *menuItems[] = {"Inbox", "Sent", "Drafts", "Spam", "Trash", "Important", "Contacts", "Connections", "Stats"};
+  int clicked = sidebar->Update(menuItems, 9);
 
   if (clicked >= 0)
   {
@@ -1089,6 +1221,9 @@ void EmailUI::UpdateContactsScreen()
       SetScreen(Screen::CONTACTS);
       break;
     case 7:
+      SetScreen(Screen::CONNECTIONS);
+      break;
+    case 8:
       SetScreen(Screen::STATS);
       break;
     }
@@ -1103,11 +1238,11 @@ void EmailUI::UpdateContactsScreen()
   }
 }
 
-void EmailUI::UpdateStatsScreen()
+void EmailUI::UpdateConnectionsScreen()
 {
   // Update sidebar navigation
-  const char *menuItems[] = {"Inbox", "Sent", "Drafts", "Spam", "Trash", "Important", "Contacts", "Stats"};
-  int clicked = sidebar->Update(menuItems, 8);
+  const char *menuItems[] = {"Inbox", "Sent", "Drafts", "Spam", "Trash", "Important", "Contacts", "Connections", "Stats"};
+  int clicked = sidebar->Update(menuItems, 9);
 
   if (clicked >= 0)
   {
@@ -1141,6 +1276,138 @@ void EmailUI::UpdateStatsScreen()
       SetScreen(Screen::CONTACTS);
       break;
     case 7:
+      SetScreen(Screen::CONNECTIONS);
+      break;
+    case 8:
+      SetScreen(Screen::STATS);
+      break;
+    }
+  }
+
+  addConnectionButton->Update();
+
+  if (addConnectionButton->IsClicked())
+  {
+    showAddConnectionModal = true;
+    connectionEmailInput->Clear();
+  }
+
+  if (showAddConnectionModal)
+  {
+    connectionEmailInput->Update();
+    saveConnectionButton->Update();
+    cancelConnectionButton->Update();
+
+    if (saveConnectionButton->IsClicked())
+    {
+      string userEmail = connectionEmailInput->GetText();
+
+      if (userEmail.empty())
+      {
+        ShowMessage("Email is required!");
+      }
+      else if (emailSystem->getCurrentUser())
+      {
+        User *currentUser = emailSystem->getCurrentUser();
+
+        if (userEmail == currentUser->getEmail())
+        {
+          ShowMessage("Cannot add yourself as a connection!");
+        }
+        else if (emailSystem->getUsers()->contains(userEmail))
+        {
+          emailSystem->getSocialGraph()->addConnection(currentUser->getEmail(), userEmail, 1);
+          emailSystem->saveData();
+          ShowMessage("Connection added successfully!");
+          showAddConnectionModal = false;
+        }
+        else
+        {
+          ShowMessage("User not found!");
+        }
+      }
+      else
+      {
+        ShowMessage("Error: User not logged in!");
+      }
+    }
+
+    if (cancelConnectionButton->IsClicked())
+    {
+      showAddConnectionModal = false;
+    }
+  }
+
+  // Handle removing connections
+  if (emailSystem->getCurrentUser())
+  {
+    GraphNode *node = emailSystem->getSocialGraph()->getNode(emailSystem->getCurrentUser()->getEmail());
+    if (node != nullptr && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+    {
+      Vector2 mousePos = GetMousePosition();
+      float yPos = 200;
+      float xPos = sidebarWidth + 40;
+
+      for (int i = 0; i < node->adjacentUsers.getSize(); i++)
+      {
+        Rectangle disconnectBtn = {xPos + screenWidth - sidebarWidth - 250, yPos + 15, 140, 40};
+        if (CheckCollisionPointRec(mousePos, disconnectBtn))
+        {
+          string connectedEmail = node->adjacentUsers.get(i);
+          emailSystem->getSocialGraph()->removeConnection(emailSystem->getCurrentUser()->getEmail(), connectedEmail);
+          emailSystem->saveData();
+          ShowMessage(TextFormat("Removed connection with %s", connectedEmail.c_str()));
+          break;
+        }
+        yPos += 100;
+        if (yPos > screenHeight - 150)
+          break;
+      }
+    }
+  }
+}
+
+void EmailUI::UpdateStatsScreen()
+{
+  // Update sidebar navigation
+  const char *menuItems[] = {"Inbox", "Sent", "Drafts", "Spam", "Trash", "Important", "Contacts", "Connections", "Stats"};
+  int clicked = sidebar->Update(menuItems, 9);
+
+  if (clicked >= 0)
+  {
+    switch (clicked)
+    {
+    case 0:
+      SetScreen(Screen::INBOX);
+      LoadEmails("Inbox");
+      break;
+    case 1:
+      SetScreen(Screen::SENT);
+      LoadEmails("Sent");
+      break;
+    case 2:
+      SetScreen(Screen::DRAFTS);
+      LoadEmails("Drafts");
+      break;
+    case 3:
+      SetScreen(Screen::SPAM);
+      LoadEmails("Spam");
+      break;
+    case 4:
+      SetScreen(Screen::TRASH);
+      LoadEmails("Trash");
+      break;
+    case 5:
+      SetScreen(Screen::IMPORTANT);
+      LoadEmails("Important");
+      break;
+    case 6:
+      SetScreen(Screen::CONTACTS);
+      break;
+    case 7:
+      SetScreen(Screen::CONNECTIONS);
+      break;
+    case 8:
       SetScreen(Screen::STATS);
       break;
     }
