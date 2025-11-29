@@ -487,8 +487,8 @@ void EmailListItem::Draw()
     DrawTextSpaced("★", bounds.x + 15, bounds.y + 10, 24, UIColors::WARNING);
   }
 
-  // Unread indicator - reserve space for it
-  float unreadDotSpace = isRead ? 0 : 35;
+  // Unread indicator - always reserve space for consistency
+  float unreadDotSpace = 35; // Always reserve space, regardless of read status
   if (!isRead)
   {
     DrawCircle(bounds.x + bounds.width - 20, bounds.y + bounds.height / 2, 6, UIColors::PRIMARY);
@@ -496,7 +496,7 @@ void EmailListItem::Draw()
 
   float textX = bounds.x + (isImportant ? 50 : 20);
 
-  // Calculate time width and reserve space for it
+  // Calculate time width and reserve space for it (always include dot space)
   int timeWidth = MeasureText(time.c_str(), 16);
   float timeX = bounds.x + bounds.width - timeWidth - unreadDotSpace - 15;
 

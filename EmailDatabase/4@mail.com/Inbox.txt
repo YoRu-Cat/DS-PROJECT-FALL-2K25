@@ -2,7 +2,7 @@ E5001,1@mail.com,4@mail.com,Project Collaboration,Would you like to work togethe
 E5002,2@mail.com,4@mail.com,Study Materials,Sharing my notes on sorting algorithms. Hope they help!,1733053000,1,0,1,Inbox
 E5003,3@mail.com,4@mail.com,Team Project,Want to be partners for the final project? We work well together.,1733054000,1,0,3,Inbox
 E5004,5@mail.com,4@mail.com,Coffee Break?,Let us take a break and grab some coffee. Been studying for hours!,1733055000,0,0,1,Inbox
-E5005,6@mail.com,4@mail.com,Bug Fix,Found the bug in your code. It was a null pointer issue.,1733056000,0,0,2,Inbox
-E5006,7@mail.com,4@mail.com,Assignment Due,Reminder: Assignment 3 is due this Friday!,1733057000,0,0,4,Inbox
+E5005,6@mail.com,4@mail.com,Bug Fix,Found the bug in your code. It was a null pointer issue.,1733056000,1,0,2,Inbox
+E5006,7@mail.com,4@mail.com,Assignment Due,Reminder: Assignment 3 is due this Friday!,1733057000,1,0,4,Inbox
 E5007,8@mail.com,4@mail.com,Movie Night,Movie night at my place Saturday. You in?,1733058000,1,0,1,Inbox
 E5008,10@mail.com,4@mail.com,Code Competition,There is a coding competition next month. Want to participate together?,1733059000,0,0,3,Inbox
