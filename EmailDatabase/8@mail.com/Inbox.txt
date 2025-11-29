@@ -1,0 +1,9 @@
+E9001,1@mail.com,8@mail.com,Assignment Help,I'm stuck on the heap implementation. Could you help me understand the heapify process?,1733056000,0,0,4,Inbox
+E9002,2@mail.com,8@mail.com,Tutorial Videos,Check out these awesome DSA tutorial videos I found on YouTube!,1733057000,1,0,1,Inbox
+E9003,3@mail.com,8@mail.com,Code Optimization,Your code works but could be optimized. Want some tips?,1733058000,0,0,2,Inbox
+E9004,4@mail.com,8@mail.com,Movie Night,Movie night at my place Saturday. You in?,1733059000,0,0,1,Inbox
+E9005,5@mail.com,8@mail.com,Code Repository,Added you as a collaborator to our GitHub repo!,1733060000,1,0,2,Inbox
+E9006,6@mail.com,8@mail.com,Data Structures Book,Found a great book on advanced data structures. Highly recommend!,1733061000,0,0,1,Inbox
+E9007,7@mail.com,8@mail.com,Project Collaboration Invite,Working on an AI project. Want to collaborate?,1733062000,0,0,4,Inbox
+E9008,9@mail.com,8@mail.com,Code Review Needed,Can you review my merge sort implementation?,1733063000,0,0,3,Inbox
+E9009,10@mail.com,8@mail.com,Exam Prep,Want to study together for the data structures exam?,1733064000,0,0,2,Inbox

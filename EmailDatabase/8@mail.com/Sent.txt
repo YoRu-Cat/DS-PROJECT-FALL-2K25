@@ -1,0 +1,4 @@
+E9010,8@mail.com,1@mail.com,Re: Heap Help,Sure! Let me explain heapify. It's basically maintaining the heap property...,1733050000,1,0,4,Sent
+E9011,8@mail.com,3@mail.com,Optimization Tips,Here are some ways to optimize your algorithm's time complexity.,1733051000,1,0,2,Sent
+E9012,8@mail.com,7@mail.com,AI Project,I'm interested in the AI project! Let's schedule a meeting.,1733052000,1,0,3,Sent
+E9013,8@mail.com,10@mail.com,Study Session,Let's meet at the library tomorrow for the study session.,1733053000,1,0,2,Sent

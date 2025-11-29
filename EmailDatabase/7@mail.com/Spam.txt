@@ -1,0 +1,2 @@
+E8030,profit@spam.com,7@mail.com,Guaranteed Profit!,Free cash bonus! Winner announcement! Claim your exclusive prize now!,1733049000,0,1,1,Spam
+E8031,urgent@fake.net,7@mail.com,Urgent Action Required!,Limited time! Act now! Guaranteed million dollar gift! Click here!,1733050000,0,1,1,Spam

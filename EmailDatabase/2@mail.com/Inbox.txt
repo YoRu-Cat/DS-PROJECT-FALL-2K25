@@ -1,0 +1,8 @@
+E3001,1@mail.com,2@mail.com,Meeting Tomorrow,Hi! Let's discuss the project requirements for our data structures assignment. Can we meet at 3 PM?,1733050000,1,0,2,Inbox
+E3002,3@mail.com,2@mail.com,Algorithm Discussion,I found a great explanation of Dijkstra's algorithm. Want to discuss it over lunch?,1733051000,1,0,2,Inbox
+E3003,4@mail.com,2@mail.com,Study Materials,Sharing my notes on sorting algorithms. Hope they help!,1733052000,1,0,1,Inbox
+E3004,5@mail.com,2@mail.com,Project Deadline Extended,Good news! Professor extended the deadline by 3 days.,1733053000,1,0,3,Inbox
+E3005,6@mail.com,2@mail.com,Lab Report,Can you send me the format for the lab report? I can't find it.,1733054000,1,0,2,Inbox
+E3006,7@mail.com,2@mail.com,Birthday Party Invitation,You're invited to my birthday party this Saturday! Hope you can make it.,1733055000,1,0,1,Inbox
+E3007,8@mail.com,2@mail.com,Tutorial Videos,Check out these awesome DSA tutorial videos I found on YouTube!,1733056000,0,0,1,Inbox
+E3008,9@mail.com,2@mail.com,Hackathon Registration,We're participating in the college hackathon. Want to join our team?,1733057000,1,0,4,Inbox

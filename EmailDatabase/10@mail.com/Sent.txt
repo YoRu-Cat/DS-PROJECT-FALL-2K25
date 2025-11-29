@@ -1,0 +1,6 @@
+E11010,10@mail.com,1@mail.com,Re: Lab Session,I'll be there with my laptop. See you tomorrow!,1733050000,1,0,2,Sent
+E11011,10@mail.com,2@mail.com,Study Group Confirmed,Friday evening works for me. What time?,1733051000,1,0,2,Sent
+E11012,10@mail.com,5@mail.com,Algorithm Help,Here's the solution to that sorting problem we discussed.,1733052000,1,0,2,Sent
+E11013,10@mail.com,8@mail.com,Study Session,Let's meet at the library tomorrow for the study session.,1733053000,1,0,2,Sent
+E11014,10@mail.com,9@mail.com,Project Planning,Let's meet Thursday to discuss the project timeline.,1733054000,1,0,3,Sent
+E11015,10@mail.com,4@mail.com,Code Competition Team,I'm in for the competition! Let's start preparing.,1733055000,1,0,3,Sent

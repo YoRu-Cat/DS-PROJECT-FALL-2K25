@@ -1,0 +1,5 @@
+E4010,3@mail.com,1@mail.com,Re: Project Help,Sure! Let's meet in the library at 2 PM to discuss the project.,1733049000,1,0,2,Sent
+E4011,3@mail.com,2@mail.com,Notes Shared,Here are my notes from yesterday's lecture. Let me know if you need anything else!,1733050000,1,0,1,Sent
+E4012,3@mail.com,4@mail.com,Thanks!,Thanks for helping me debug that issue. You're a lifesaver!,1733051000,1,0,1,Sent
+E4013,3@mail.com,7@mail.com,Meeting Minutes,Attaching the minutes from today's group meeting.,1733052000,1,0,2,Sent
+E1764421778,3@mail.com,1@gmail.com,nigga,Winner my L,1764421778,0,0,0,Sent

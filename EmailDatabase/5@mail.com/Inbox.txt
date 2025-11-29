@@ -1,0 +1,9 @@
+E6001,1@mail.com,5@mail.com,Study Group,We're forming a study group for the final exams. Interested in joining us?,1733053000,0,0,2,Inbox
+E6002,2@mail.com,5@mail.com,Project Deadline Extended,Good news! Professor extended the deadline by 3 days.,1733054000,1,0,3,Inbox
+E6003,3@mail.com,5@mail.com,Compiler Errors,Getting weird compilation errors. Can you take a look at my code?,1733055000,0,0,2,Inbox
+E6004,4@mail.com,5@mail.com,Coffee Break?,Let us take a break and grab some coffee. Been studying for hours!,1733056000,1,0,1,Inbox
+E6005,6@mail.com,5@mail.com,Presentation Slides,Sharing the presentation slides from yesterday's lecture.,1733057000,0,0,2,Inbox
+E6006,7@mail.com,5@mail.com,Group Meeting,Group meeting rescheduled to tomorrow at 5 PM.,1733058000,0,0,3,Inbox
+E6007,8@mail.com,5@mail.com,Code Repository,Added you as a collaborator to our GitHub repo!,1733059000,1,0,2,Inbox
+E6008,9@mail.com,5@mail.com,Assignment Questions,Have some questions about the linked list assignment.,1733060000,0,0,2,Inbox
+E6009,10@mail.com,5@mail.com,Study Session Tomorrow,Planning a study session tomorrow afternoon. Join us?,1733061000,0,0,1,Inbox

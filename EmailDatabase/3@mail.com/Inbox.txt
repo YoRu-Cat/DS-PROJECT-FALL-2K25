@@ -1,0 +1,9 @@
+E4001,1@mail.com,3@mail.com,Quick Question,Do you have the notes from last lecture? I missed the class on graphs.,1733051000,1,0,1,Inbox
+E4002,2@mail.com,3@mail.com,Algorithm Discussion,I found a great explanation of Dijkstra's algorithm. Want to discuss it over lunch?,1733051000,1,0,2,Inbox
+E4003,4@mail.com,3@mail.com,Team Project,Want to be partners for the final project? We work well together.,1733052000,0,0,3,Inbox
+E4004,5@mail.com,3@mail.com,Compiler Errors,Getting weird compilation errors. Can you take a look at my code?,1733053000,1,0,2,Inbox
+E4005,6@mail.com,3@mail.com,Game Night,We're having a game night on Friday. You should come!,1733054000,1,0,1,Inbox
+E4006,7@mail.com,3@mail.com,Midterm Prep,Let's form a study group for the midterm. I'm struggling with recursion.,1733055000,1,0,3,Inbox
+E4007,8@mail.com,3@mail.com,Code Optimization,Your code works but could be optimized. Want some tips?,1733056000,1,0,2,Inbox
+E4008,9@mail.com,3@mail.com,Workshop Tomorrow,Don't forget about the C++ workshop tomorrow at 2 PM!,1733057000,0,0,4,Inbox
+E4009,10@mail.com,3@mail.com,Library Books,The books you requested are now available at the library.,1733058000,1,0,1,Inbox

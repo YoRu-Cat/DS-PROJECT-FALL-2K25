@@ -1,0 +1,4 @@
+E7010,6@mail.com,1@mail.com,Code Sharing,Here's my implementation of the linked list. Let me know if you need any clarification.,1733052000,1,0,3,Sent
+E7011,6@mail.com,3@mail.com,Re: Game Night,I'll be there! Should I bring anything?,1733053000,1,0,1,Sent
+E7012,6@mail.com,5@mail.com,Lab Report Format,Here's the lab report template you asked for.,1733054000,1,0,2,Sent
+E7013,6@mail.com,8@mail.com,Bug Fix Confirmation,Fixed that null pointer bug. Thanks for catching it!,1733055000,1,0,2,Sent

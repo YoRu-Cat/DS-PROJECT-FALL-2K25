@@ -1,0 +1,3 @@
+E4030,promo@ads.com,3@mail.com,Exclusive Limited Offer!,Free bonus! Click here now for guaranteed profit! Act fast before it's too late!,1733046000,0,1,1,Spam
+E4031,deals@spam.net,3@mail.com,Claim Your Gift Today!,Winner! You've been selected for an exclusive cash prize. Urgent response needed!,1733047000,0,1,1,Spam
+E4051,dean@university.edu,3@mail.com,Dean's List Congratulations,You've made the Dean's List! Excellent work this semester.,1733056000,0,1,5,Spam

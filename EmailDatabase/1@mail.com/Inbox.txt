@@ -1,0 +1,10 @@
+E1001,2@mail.com,1@mail.com,Meeting Tomorrow,Hi! Let's discuss the project requirements for our data structures assignment. Can we meet at 3 PM?,1733050000,0,0,2,Inbox
+E1002,3@mail.com,1@mail.com,Quick Question,Do you have the notes from last lecture? I missed the class on graphs.,1733051000,0,0,1,Inbox
+E1003,4@mail.com,1@mail.com,Project Collaboration,Would you like to work together on the email system project? I think we could make a great team!,1733052000,0,0,3,Inbox
+E1004,5@mail.com,1@mail.com,Study Group,We're forming a study group for the final exams. Interested in joining us?,1733053000,1,0,2,Inbox
+E1005,6@mail.com,1@mail.com,Code Review Request,Can you review my BST implementation? I'm getting some weird bugs.,1733054000,0,0,3,Inbox
+E1006,7@mail.com,1@mail.com,Weekend Plans,Hey! Want to grab coffee this weekend and discuss algorithms?,1733055000,1,0,1,Inbox
+E1007,8@mail.com,1@mail.com,Assignment Help,I'm stuck on the heap implementation. Could you help me understand the heapify process?,1733056000,0,0,4,Inbox
+E1008,system@mail.com,1@mail.com,Welcome to Email System,Welcome! Your account has been successfully created. Start sending emails today!,1733047000,1,0,2,Inbox
+E1009,9@mail.com,1@mail.com,Book Recommendation,Check out 'Introduction to Algorithms' by CLRS. It's really helpful for our course!,1733057000,0,0,1,Inbox
+E1010,10@mail.com,1@mail.com,Lab Session,Tomorrow's lab is about graph traversal. Make sure to bring your laptop!,1733058000,0,0,3,Inbox

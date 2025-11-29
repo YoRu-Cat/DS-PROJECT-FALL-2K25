@@ -1,0 +1,8 @@
+E7001,1@mail.com,6@mail.com,Code Review Request,Can you review my BST implementation? I'm getting some weird bugs.,1733054000,0,0,3,Inbox
+E7002,2@mail.com,6@mail.com,Lab Report,Can you send me the format for the lab report? I can't find it.,1733055000,1,0,2,Inbox
+E7003,3@mail.com,6@mail.com,Game Night,We're having a game night on Friday. You should come!,1733056000,0,0,1,Inbox
+E7004,4@mail.com,6@mail.com,Bug Fix,Found the bug in your code. It was a null pointer issue.,1733057000,1,0,2,Inbox
+E7005,5@mail.com,6@mail.com,Presentation Slides,Sharing the presentation slides from yesterday's lecture.,1733058000,1,0,2,Inbox
+E7006,7@mail.com,6@mail.com,Weekend Hackathon,There's a hackathon this weekend. Want to team up?,1733059000,0,0,3,Inbox
+E7007,8@mail.com,6@mail.com,Data Structures Book,Found a great book on advanced data structures. Highly recommend!,1733060000,0,0,1,Inbox
+E7008,9@mail.com,6@mail.com,Practice Problems,Sharing some practice problems for the upcoming test.,1733061000,0,0,2,Inbox

@@ -1,0 +1,2 @@
+E10050,committee@university.edu,9@mail.com,Excellence Award Nomination,You've been nominated for the Student Excellence Award!,1733064000,0,0,5,Important
+E10051,conference@tech.org,9@mail.com,Conference Acceptance,Your paper has been accepted for presentation at the conference!,1733065000,0,0,5,Important

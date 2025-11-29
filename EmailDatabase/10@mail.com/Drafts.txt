@@ -1,0 +1,2 @@
+E11020,10@mail.com,6@mail.com,Draft: Project Ideas,Brainstorming some project ideas for next semester...,1733056000,1,0,2,Drafts
+E11021,10@mail.com,7@mail.com,Draft: Lecture Notes,Organizing my lecture notes to share...,1733057000,1,0,1,Drafts

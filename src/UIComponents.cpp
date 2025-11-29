@@ -458,7 +458,16 @@ void EmailListItem::Update()
 
 void EmailListItem::Draw()
 {
-  Color bgColor = isHovered ? Color{245, 247, 250, 255} : UIColors::UI_WHITE;
+  // Semi-transparent background for read emails, solid for unread
+  Color bgColor;
+  if (isRead)
+  {
+    bgColor = isHovered ? Color{245, 247, 250, 180} : Color{255, 255, 255, 180};
+  }
+  else
+  {
+    bgColor = isHovered ? Color{245, 247, 250, 255} : UIColors::UI_WHITE;
+  }
 
   DrawRectangleRec(bounds, bgColor);
   DrawRectangleLinesEx(bounds, 1, UIColors::BORDER);
@@ -478,7 +487,8 @@ void EmailListItem::Draw()
     DrawTextSpaced("★", bounds.x + 15, bounds.y + 10, 24, UIColors::WARNING);
   }
 
-  // Unread indicator
+  // Unread indicator - reserve space for it
+  float unreadDotSpace = isRead ? 0 : 35;
   if (!isRead)
   {
     DrawCircle(bounds.x + bounds.width - 20, bounds.y + bounds.height / 2, 6, UIColors::PRIMARY);
@@ -486,21 +496,61 @@ void EmailListItem::Draw()
 
   float textX = bounds.x + (isImportant ? 50 : 20);
 
+  // Calculate time width and reserve space for it
+  int timeWidth = MeasureText(time.c_str(), 16);
+  float timeX = bounds.x + bounds.width - timeWidth - unreadDotSpace - 15;
+
+  // Calculate maximum width for sender text (leave space for time and dot)
+  float maxTextWidth = timeX - textX - 10;
+
   // Sender (bold if unread) - dark text on white background
   int senderSize = isRead ? 20 : 22;
-  DrawTextSpaced(sender.c_str(), textX, bounds.y + 10, senderSize,
-                 isRead ? Color{60, 60, 70, 255} : Color{40, 40, 50, 255});
+  std::string truncatedSender = sender;
+  int senderWidth = MeasureText(sender.c_str(), senderSize);
+  if (senderWidth > maxTextWidth)
+  {
+    // Truncate sender with ellipsis
+    while (senderWidth > maxTextWidth - 20 && truncatedSender.length() > 3)
+    {
+      truncatedSender = truncatedSender.substr(0, truncatedSender.length() - 1);
+      senderWidth = MeasureText((truncatedSender + "...").c_str(), senderSize);
+    }
+    truncatedSender += "...";
+  }
+  DrawTextSpaced(truncatedSender.c_str(), textX, bounds.y + 10, senderSize,
+                 isRead ? Color{60, 60, 70, 200} : Color{40, 40, 50, 255});
 
-  // Subject - dark text on white background
-  DrawTextSpaced(subject.c_str(), textX, bounds.y + 35, 18, Color{60, 60, 70, 255});
+  // Subject - dark text, truncate if needed
+  std::string truncatedSubject = subject;
+  int subjectWidth = MeasureText(subject.c_str(), 18);
+  if (subjectWidth > maxTextWidth)
+  {
+    while (subjectWidth > maxTextWidth - 20 && truncatedSubject.length() > 3)
+    {
+      truncatedSubject = truncatedSubject.substr(0, truncatedSubject.length() - 1);
+      subjectWidth = MeasureText((truncatedSubject + "...").c_str(), 18);
+    }
+    truncatedSubject += "...";
+  }
+  DrawTextSpaced(truncatedSubject.c_str(), textX, bounds.y + 35, 18,
+                 isRead ? Color{60, 60, 70, 200} : Color{60, 60, 70, 255});
 
-  // Preview - gray text on white background
-  Color previewColor = {100, 110, 120, 255};
-  DrawTextSpaced(preview.c_str(), textX, bounds.y + 57, 16, previewColor);
+  // Preview - gray text on white background, truncate if needed
+  Color previewColor = isRead ? Color{100, 110, 120, 200} : Color{100, 110, 120, 255};
+  std::string truncatedPreview = preview;
+  int previewWidth = MeasureText(preview.c_str(), 16);
+  if (previewWidth > maxTextWidth)
+  {
+    while (previewWidth > maxTextWidth - 20 && truncatedPreview.length() > 3)
+    {
+      truncatedPreview = truncatedPreview.substr(0, truncatedPreview.length() - 1);
+      previewWidth = MeasureText((truncatedPreview + "...").c_str(), 16);
+    }
+    truncatedPreview += "...";
+  }
+  DrawTextSpaced(truncatedPreview.c_str(), textX, bounds.y + 57, 16, previewColor);
 
-  // Time - position it before the unread dot (if present)
-  int timeWidth = MeasureText(time.c_str(), 16);
-  float timeX = bounds.x + bounds.width - timeWidth - (isRead ? 15 : 35);
+  // Time - always draw at fixed position
   DrawTextSpaced(time.c_str(), timeX, bounds.y + 10, 16, previewColor);
 }
 

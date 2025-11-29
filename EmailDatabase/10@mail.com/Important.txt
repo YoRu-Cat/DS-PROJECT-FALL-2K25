@@ -1,0 +1,2 @@
+E11050,scholarship@university.edu,10@mail.com,Full Scholarship Award,Congratulations! You've been awarded a full scholarship for next year!,1733065000,0,0,5,Important
+E11051,dean@university.edu,10@mail.com,Outstanding Achievement,You've been recognized for outstanding academic achievement!,1733066000,0,0,5,Important

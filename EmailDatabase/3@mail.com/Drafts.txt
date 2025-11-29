@@ -1,0 +1,2 @@
+E4020,3@mail.com,5@mail.com,Draft: Internship Application,Working on my internship application email. Need to proofread...,1733053000,1,0,2,Drafts
+E4021,3@mail.com,8@mail.com,Draft: Complex Algorithm,Trying to explain the A* algorithm but it's complicated...,1733054000,1,0,1,Drafts

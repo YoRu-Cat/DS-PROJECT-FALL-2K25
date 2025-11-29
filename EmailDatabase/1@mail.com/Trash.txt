@@ -1,0 +1,1 @@
+E2030,old@mail.com,1@mail.com,Old Newsletter,This is an old newsletter that should be deleted.,1733040000,1,0,0,Trash

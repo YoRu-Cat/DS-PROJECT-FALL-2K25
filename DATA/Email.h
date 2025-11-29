@@ -76,17 +76,17 @@ public:
   void markAsRead() { isRead = true; }
   void markAsUnread() { isRead = false; }
 
-  bool containsSpamWords(string spamWords[], int size)
+  bool containsSpamWords(string spamWords[], int size) const
   {
     string lowerSubject = subject;
     string lowerContent = content;
 
     // Convert to lowercase for comparison
-    for (int i = 0; i < lowerSubject.length(); i++)
+    for (size_t i = 0; i < lowerSubject.length(); i++)
     {
       lowerSubject[i] = tolower(lowerSubject[i]);
     }
-    for (int i = 0; i < lowerContent.length(); i++)
+    for (size_t i = 0; i < lowerContent.length(); i++)
     {
       lowerContent[i] = tolower(lowerContent[i]);
     }
@@ -94,7 +94,7 @@ public:
     for (int i = 0; i < size; i++)
     {
       string lowerSpam = spamWords[i];
-      for (int j = 0; j < lowerSpam.length(); j++)
+      for (size_t j = 0; j < lowerSpam.length(); j++)
       {
         lowerSpam[j] = tolower(lowerSpam[j]);
       }

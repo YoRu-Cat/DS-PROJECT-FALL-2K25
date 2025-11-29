@@ -1,0 +1,2 @@
+E2040,4@mail.com,1@mail.com,IMPORTANT: Project Deadline,The final project deadline is next week! Make sure to complete all requirements.,1733055000,1,0,5,Important
+E2041,professor@university.edu,1@mail.com,Exam Schedule,Your final exam is scheduled for December 15th at 10 AM. Good luck!,1733056000,1,0,5,Important

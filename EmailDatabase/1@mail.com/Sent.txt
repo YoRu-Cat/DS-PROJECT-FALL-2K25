@@ -1,0 +1,5 @@
+E2001,1@mail.com,2@mail.com,Thanks for the notes,Thanks so much for sharing your notes! They were really helpful.,1733048000,1,0,1,Sent
+E2002,1@mail.com,3@mail.com,Re: Project Help,Sure! Let's meet in the library at 2 PM to discuss the project.,1733049000,1,0,2,Sent
+E2003,1@mail.com,4@mail.com,Assignment Submission,I've submitted my assignment. Hope the implementation is correct!,1733050000,1,0,2,Sent
+E2004,1@mail.com,5@mail.com,Group Study Confirmed,Count me in for the study group! What time works for everyone?,1733051000,1,0,2,Sent
+E2005,1@mail.com,6@mail.com,Code Sharing,Here's my implementation of the linked list. Let me know if you need any clarification.,1733052000,1,0,3,Sent

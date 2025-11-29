@@ -1,0 +1,2 @@
+E9050,internship@company.com,8@mail.com,Internship Offer,Congratulations! You've been selected for the summer internship program!,1733063000,0,0,5,Important
+E9051,professor@university.edu,8@mail.com,Research Assistant Position,Opening for research assistant in my lab. Interested?,1733064000,0,0,5,Important

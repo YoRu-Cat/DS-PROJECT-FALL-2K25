@@ -1,0 +1,2 @@
+E8040,professor@university.edu,7@mail.com,Research Opportunity,Interested in joining my research lab? Let's discuss!,1733061000,0,0,5,Important
+E8041,career@university.edu,7@mail.com,Job Fair Next Week,Annual career fair is next Wednesday. Don't miss it!,1733062000,1,0,4,Important

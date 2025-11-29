@@ -1,0 +1,2 @@
+E5050,professor@university.edu,4@mail.com,IMPORTANT: Project Deadline,The final project deadline is next week! Make sure to complete all requirements.,1733058000,1,0,5,Important
+E5051,ta@university.edu,4@mail.com,Grade Posted,Your midterm grade has been posted. Check the portal.,1733059000,0,0,4,Important

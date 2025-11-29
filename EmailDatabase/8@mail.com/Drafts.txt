@@ -1,0 +1,2 @@
+E9020,8@mail.com,2@mail.com,Draft: Project Proposal,Drafting the project proposal for the AI system...,1733054000,1,0,3,Drafts
+E9021,8@mail.com,6@mail.com,Draft: Technical Documentation,Working on the technical docs for our project...,1733055000,1,0,2,Drafts

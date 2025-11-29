@@ -1,0 +1,1 @@
+E4050,advisor@university.edu,3@mail.com,Course Registration Reminder,Don't forget to register for next semester's courses by December 1st!,1733055000,1,0,5,Important

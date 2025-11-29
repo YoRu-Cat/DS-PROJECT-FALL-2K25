@@ -1,0 +1,8 @@
+E11001,1@mail.com,10@mail.com,Lab Session,Tomorrow's lab is about graph traversal. Make sure to bring your laptop!,1733058000,0,0,3,Inbox
+E11002,2@mail.com,10@mail.com,Study Group Update,Study group is rescheduled to Friday evening.,1733059000,1,0,2,Inbox
+E11003,3@mail.com,10@mail.com,Library Books,The books you requested are now available at the library.,1733060000,0,0,1,Inbox
+E11004,4@mail.com,10@mail.com,Code Competition,There is a coding competition next month. Want to participate together?,1733061000,0,0,3,Inbox
+E11005,5@mail.com,10@mail.com,Study Session Tomorrow,Planning a study session tomorrow afternoon. Join us?,1733062000,1,0,1,Inbox
+E11006,7@mail.com,10@mail.com,Lecture Recording,Uploaded the lecture recording to the shared drive.,1733063000,0,0,2,Inbox
+E11007,8@mail.com,10@mail.com,Exam Prep,Want to study together for the data structures exam?,1733064000,0,0,2,Inbox
+E11008,9@mail.com,10@mail.com,Final Project,Let's finalize our project plan this week.,1733065000,1,0,4,Inbox

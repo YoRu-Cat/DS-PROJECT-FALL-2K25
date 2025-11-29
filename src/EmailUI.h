@@ -23,7 +23,10 @@ enum class Screen
   EMAIL_DETAIL,
   CONTACTS,
   SETTINGS,
-  STATS
+  STATS,
+  SCHEDULED_EMAILS,
+  ACTIVITY_LOG,
+  SYSTEM_CONFIG
 };
 
 class EmailUI
@@ -94,6 +97,7 @@ private:
   float statusMessageTime;
   std::vector<Email> displayedEmails;
   bool isComposingReply;
+  std::string currentFolderName;
 
   // Screen dimensions
   float screenWidth;
@@ -131,6 +135,9 @@ public:
   void UpdateEmailDetailScreen();
   void UpdateContactsScreen();
   void UpdateStatsScreen();
+  void UpdateScheduledEmailsScreen();
+  void UpdateActivityLogScreen();
+  void UpdateSystemConfigScreen();
 
   // Email operations
   void LoadEmails(const char *folderName);
@@ -141,6 +148,10 @@ public:
   void MarkAsImportant();
   void MarkAsSpam();
   void SearchEmails(const char *query);
+  void UndoLastOperation();
+  void RedoLastOperation();
+  void ProcessScheduledEmails();
+  void ProcessIncomingEmails();
 
   // UI helpers
   void ShowMessage(const char *message);

@@ -235,6 +235,15 @@ void EmailUI::Update(float deltaTime)
   case Screen::STATS:
     UpdateStatsScreen();
     break;
+  case Screen::SCHEDULED_EMAILS:
+    UpdateScheduledEmailsScreen();
+    break;
+  case Screen::ACTIVITY_LOG:
+    UpdateActivityLogScreen();
+    break;
+  case Screen::SYSTEM_CONFIG:
+    UpdateSystemConfigScreen();
+    break;
   }
 
   if (messageModal)
@@ -560,6 +569,15 @@ void EmailUI::DrawMainDashboard()
     {
       selectedEmailId = email.getEmailId();
       currentEmail = &displayedEmails[i];
+
+      // Mark email as read when clicked
+      if (!currentEmail->getIsRead())
+      {
+        currentEmail->markAsRead();
+        // Update the email in the email system and save to file
+        emailSystem->updateEmail(*currentEmail);
+      }
+
       SetScreen(Screen::EMAIL_DETAIL);
     }
   }
@@ -817,8 +835,8 @@ void EmailUI::UpdateMainDashboard()
   changeBgButton->Update();
 
   // Sidebar navigation
-  const char *menuItems[] = {"Inbox", "Sent", "Drafts", "Spam", "Trash", "Important", "Contacts", "Stats"};
-  int clicked = sidebar->Update(menuItems, 8);
+  const char *menuItems[] = {"Inbox", "Sent", "Drafts", "Spam", "Trash", "Important", "Contacts", "Stats", "Scheduled", "Activity", "Config"};
+  int clicked = sidebar->Update(menuItems, 11);
 
   if (clicked >= 0)
   {
@@ -853,6 +871,15 @@ void EmailUI::UpdateMainDashboard()
       break;
     case 7:
       SetScreen(Screen::STATS);
+      break;
+    case 8:
+      SetScreen(Screen::SCHEDULED_EMAILS);
+      break;
+    case 9:
+      SetScreen(Screen::ACTIVITY_LOG);
+      break;
+    case 10:
+      SetScreen(Screen::SYSTEM_CONFIG);
       break;
     }
   }
@@ -898,6 +925,38 @@ void EmailUI::UpdateMainDashboard()
   if (contactsButton->IsClicked())
   {
     SetScreen(Screen::CONTACTS);
+  }
+
+  // Keyboard shortcuts for undo/redo
+  if (IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL))
+  {
+    if (IsKeyPressed(KEY_Z) && emailSystem->canUndo())
+    {
+      UndoLastOperation();
+    }
+    if (IsKeyPressed(KEY_Y) && emailSystem->canRedo())
+    {
+      RedoLastOperation();
+    }
+  }
+
+  // Draw undo/redo buttons
+  Rectangle undoRect = {950, 50, 150, 40};
+  bool undoHovered = CheckCollisionPointRec(GetMousePosition(), undoRect);
+  DrawRectangleRec(undoRect, emailSystem->canUndo() ? (undoHovered ? UIColors::PRIMARY_HOVER : BLUE) : GRAY);
+  DrawTextSpaced("Undo (Ctrl+Z)", 960, 60, 16, WHITE);
+  if (undoHovered && IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && emailSystem->canUndo())
+  {
+    UndoLastOperation();
+  }
+
+  Rectangle redoRect = {1110, 50, 150, 40};
+  bool redoHovered = CheckCollisionPointRec(GetMousePosition(), redoRect);
+  DrawRectangleRec(redoRect, emailSystem->canRedo() ? (redoHovered ? UIColors::PRIMARY_HOVER : BLUE) : GRAY);
+  DrawTextSpaced("Redo (Ctrl+Y)", 1120, 60, 16, WHITE);
+  if (redoHovered && IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && emailSystem->canRedo())
+  {
+    RedoLastOperation();
   }
 
   if (statsButton->IsClicked())
@@ -1131,6 +1190,7 @@ void EmailUI::SetScreen(Screen screen)
 void EmailUI::LoadEmails(const char *folderName)
 {
   displayedEmails.clear();
+  currentFolderName = folderName; // Store current folder
 
   if (!emailSystem->isLoggedIn())
     return;
@@ -1189,14 +1249,36 @@ void EmailUI::SendEmail()
   newEmail.setFolder("Sent");
   emailSystem->getSent()->addEmail(newEmail);
 
-  // If sending to self, also add to Inbox
+  // If sending to self, also add to Inbox with spam check
   if (to == senderEmail)
   {
     Email inboxCopy = newEmail;
-    inboxCopy.setFolder("Inbox");
     inboxCopy.setIsRead(false);
-    emailSystem->getInbox()->addEmail(inboxCopy);
+
+    // Check for spam
+    if (emailSystem->isSpamEmail(inboxCopy))
+    {
+      inboxCopy.setFolder("Spam");
+      inboxCopy.setIsSpam(true);
+      emailSystem->getSpam()->addEmail(inboxCopy);
+    }
+    else
+    {
+      inboxCopy.setFolder("Inbox");
+      emailSystem->getInbox()->addEmail(inboxCopy);
+    }
   }
+  else
+  {
+    // Sending to another user - deliver to their inbox
+    emailSystem->deliverEmailToUser(newEmail, to);
+  }
+
+  // Log activity
+  emailSystem->logActivity("Sent email to " + to + ": " + subject);
+
+  // Add to recent contacts
+  emailSystem->getCurrentUser()->addRecentContact(to);
 
   emailSystem->saveAllEmails();
 
@@ -1205,7 +1287,6 @@ void EmailUI::SendEmail()
   LoadEmails("Sent");
   ClearInputs();
 }
-
 void EmailUI::SaveDraft()
 {
   std::string to = toInput->GetText();
@@ -1238,11 +1319,11 @@ void EmailUI::DeleteEmail()
 {
   if (currentEmail)
   {
-    currentEmail->setFolder("Trash");
-    emailSystem->getTrash()->addEmail(*currentEmail);
+    // Use enhanced delete with undo support
+    emailSystem->deleteEmailWithUndo(currentEmail->getEmailId(), currentEmail->getFolder());
     emailSystem->saveAllEmails();
 
-    ShowMessage("Email moved to trash");
+    ShowMessage("Email moved to trash (Undo available)");
     SetScreen(previousScreen);
 
     // Reload current folder
@@ -1376,4 +1457,121 @@ Color EmailUI::GetPriorityColor(int priority)
   if (priority >= 2)
     return UIColors::WARNING;
   return UIColors::INFO;
+}
+
+// ============= NEW FUNCTIONALITY IMPLEMENTATIONS =============
+
+void EmailUI::UndoLastOperation()
+{
+  emailSystem->undoEmailOperation();
+  LoadEmails(currentFolderName.c_str());
+  ShowMessage("Operation undone");
+}
+
+void EmailUI::RedoLastOperation()
+{
+  emailSystem->redoEmailOperation();
+  LoadEmails(currentFolderName.c_str());
+  ShowMessage("Operation redone");
+}
+
+void EmailUI::ProcessScheduledEmails()
+{
+  emailSystem->processScheduledEmails();
+  ShowMessage("Scheduled emails processed");
+}
+
+void EmailUI::ProcessIncomingEmails()
+{
+  emailSystem->processIncomingEmails();
+  LoadEmails("Inbox");
+  ShowMessage("Incoming emails processed");
+}
+
+void EmailUI::UpdateScheduledEmailsScreen()
+{
+  // Draw title
+  DrawTextSpaced("Scheduled Emails", 300, 50, 32, WHITE);
+
+  // Display scheduled email count
+  int scheduledCount = emailSystem->getScheduledEmailCount();
+  std::string countText = "Scheduled Emails: " + std::to_string(scheduledCount);
+  DrawTextSpaced(countText.c_str(), 300, 100, 20, LIGHTGRAY);
+
+  // Process button
+  Rectangle processBtn = {300, 150, 250, 50};
+  bool processHovered = CheckCollisionPointRec(GetMousePosition(), processBtn);
+  DrawRectangleRec(processBtn, processHovered ? UIColors::PRIMARY_HOVER : BLUE);
+  DrawTextSpaced("Process Scheduled", 320, 165, 18, WHITE);
+  if (processHovered && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+  {
+    ProcessScheduledEmails();
+  }
+
+  // Back button
+  Rectangle backBtn = {300, 220, 250, 50};
+  bool backHovered = CheckCollisionPointRec(GetMousePosition(), backBtn);
+  DrawRectangleRec(backBtn, backHovered ? DARKGRAY : GRAY);
+  DrawTextSpaced("Back to Dashboard", 320, 235, 18, WHITE);
+  if (backHovered && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+  {
+    SetScreen(Screen::MAIN_DASHBOARD);
+  }
+
+  // Display stats
+  DrawTextSpaced("Priority Queue:", 300, 300, 20, WHITE);
+  std::string priorityText = "High-priority emails: " + std::to_string(emailSystem->getPriorityQueueCount());
+  DrawTextSpaced(priorityText.c_str(), 300, 330, 18, LIGHTGRAY);
+
+  DrawTextSpaced("Incoming Queue:", 300, 380, 20, WHITE);
+  std::string incomingText = "Pending emails: " + std::to_string(emailSystem->getIncomingQueueCount());
+  DrawTextSpaced(incomingText.c_str(), 300, 410, 18, LIGHTGRAY);
+}
+
+void EmailUI::UpdateActivityLogScreen()
+{
+  // Draw title
+  DrawTextSpaced("Activity Log", 300, 50, 32, WHITE);
+
+  // Display activity log
+  emailSystem->displayActivityLog();
+
+  // Back button
+  Rectangle backBtn = {300, 500, 250, 50};
+  bool backHovered = CheckCollisionPointRec(GetMousePosition(), backBtn);
+  DrawRectangleRec(backBtn, backHovered ? DARKGRAY : GRAY);
+  DrawTextSpaced("Back to Dashboard", 320, 515, 18, WHITE);
+  if (backHovered && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+  {
+    SetScreen(Screen::MAIN_DASHBOARD);
+  }
+}
+
+void EmailUI::UpdateSystemConfigScreen()
+{
+  // Draw title
+  DrawTextSpaced("System Configuration", 300, 50, 32, WHITE);
+
+  // Display system config
+  emailSystem->displaySystemConfig();
+
+  // Back button
+  Rectangle backBtn = {300, 500, 250, 50};
+  bool backHovered = CheckCollisionPointRec(GetMousePosition(), backBtn);
+  DrawRectangleRec(backBtn, backHovered ? DARKGRAY : GRAY);
+  DrawTextSpaced("Back to Dashboard", 320, 515, 18, WHITE);
+  if (backHovered && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+  {
+    SetScreen(Screen::MAIN_DASHBOARD);
+  }
+
+  // Display some config values
+  std::string theme = "Theme: " + emailSystem->getConfigValue("Theme");
+  DrawTextSpaced(theme.c_str(), 300, 150, 18, WHITE);
+
+  std::string spamFilter = "Spam Filter: " + emailSystem->getConfigValue("SpamFilterEnabled");
+  DrawTextSpaced(spamFilter.c_str(), 300, 180, 18, WHITE);
+
+  std::string maxInbox = "Max Inbox Size: " + emailSystem->getConfigValue("MaxInboxSize");
+  DrawTextSpaced(maxInbox.c_str(), 300, 210, 18, WHITE);
 }

@@ -1,0 +1,2 @@
+E6040,advisor@university.edu,5@mail.com,Academic Advising,Please schedule an appointment to discuss your course selection.,1733058000,0,0,5,Important
+E6041,registrar@university.edu,5@mail.com,Registration Deadline,Course registration deadline is December 5th!,1733059000,1,0,4,Important

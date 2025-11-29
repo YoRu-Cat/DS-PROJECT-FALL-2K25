@@ -1,0 +1,2 @@
+E3030,lottery@scam.com,2@mail.com,You Won the Lottery!,Winner! Click here to claim your guaranteed million dollar prize! Act now!,1733045000,1,1,1,Spam
+E3040,professor@university.edu,2@mail.com,Scholarship Opportunity,You've been selected for a scholarship interview. Congratulations!,1733056000,1,1,5,Spam

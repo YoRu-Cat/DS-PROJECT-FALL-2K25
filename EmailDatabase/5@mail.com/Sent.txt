@@ -1,0 +1,4 @@
+E6010,5@mail.com,1@mail.com,Re: Study Group,Count me in! What time works best?,1733050000,1,0,2,Sent
+E6011,5@mail.com,4@mail.com,Project Update,Updated the GitHub repo with latest changes.,1733051000,1,0,2,Sent
+E6012,5@mail.com,7@mail.com,Thanks for Notes,Thanks for sharing your lecture notes!,1733052000,1,0,1,Sent
+E6013,5@mail.com,10@mail.com,Algorithm Help,Here's the solution to that sorting problem we discussed.,1733053000,1,0,2,Sent

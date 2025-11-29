@@ -1,0 +1,2 @@
+E2020,spam@unknown.com,1@mail.com,WINNER! Claim Your Prize Now!,Congratulations! You've won a million dollars! Click here to claim your exclusive bonus now!,1733045000,0,1,1,Spam
+E2021,scam@fake.com,1@mail.com,Urgent: Free Money Available,Act now! Limited time offer! Guaranteed profit! Get your free gift today!,1733046000,0,1,1,Spam

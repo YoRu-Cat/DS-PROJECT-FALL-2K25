@@ -1,0 +1,2 @@
+E10030,winner@fake.com,9@mail.com,You Won Big!,Congratulations winner! Free bonus cash! Claim your exclusive prize! Act urgently!,1733052000,0,1,1,Spam
+E10031,limited@spam.net,9@mail.com,Limited Time Offer!,Guaranteed profit! Million dollar gift! Click here now! Urgent!,1733053000,0,1,1,Spam
