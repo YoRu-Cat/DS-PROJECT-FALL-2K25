@@ -70,7 +70,6 @@ void BackgroundManager::DrawFittedBackground()
       0.0f,
       WHITE);
 
-  // Draw overlay for readability
   DrawRectangle(0, 0, screenWidth, screenHeight,
                 {overlayColor.r, overlayColor.g, overlayColor.b,
                  (unsigned char)(overlayAlpha * 255)});
