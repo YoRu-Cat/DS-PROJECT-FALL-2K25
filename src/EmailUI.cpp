@@ -1177,14 +1177,27 @@ void EmailUI::SendEmail()
     return;
   }
 
+  std::string senderEmail = emailSystem->getCurrentUser()->getEmail();
+
   // Create and send email
   Email newEmail("E" + std::to_string(time(0)),
-                 emailSystem->getCurrentUser()->getEmail(),
+                 senderEmail,
                  to, subject, content);
-  newEmail.setFolder("Sent");
-  newEmail.setPriority(1);
+  newEmail.setPriority(selectedPriority);
 
+  // Save to sender's Sent folder
+  newEmail.setFolder("Sent");
   emailSystem->getSent()->addEmail(newEmail);
+
+  // If sending to self, also add to Inbox
+  if (to == senderEmail)
+  {
+    Email inboxCopy = newEmail;
+    inboxCopy.setFolder("Inbox");
+    inboxCopy.setIsRead(false);
+    emailSystem->getInbox()->addEmail(inboxCopy);
+  }
+
   emailSystem->saveAllEmails();
 
   ShowMessage("Email sent successfully!");

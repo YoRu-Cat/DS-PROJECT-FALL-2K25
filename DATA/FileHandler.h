@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <direct.h>
 #include "User.h"
 #include "Email.h"
 #include "Graph.h"
@@ -13,27 +14,42 @@ using namespace std;
 class FileHandler
 {
 private:
+  string databaseFolder;
   string usersFile;
-  string emailsFile;
   string spamWordsFile;
   string socialGraphFile;
+
+  void createDirectory(const string &path)
+  {
+    _mkdir(path.c_str());
+  }
+
+  string getUserFolderPath(const string &userEmail)
+  {
+    return databaseFolder + "/" + userEmail;
+  }
+
+  string getFolderFilePath(const string &userEmail, const string &folderName)
+  {
+    return getUserFolderPath(userEmail) + "/" + folderName + ".txt";
+  }
 
 public:
   FileHandler()
   {
-    usersFile = "users.txt";
-    emailsFile = "email.txt";
-    spamWordsFile = "spam_words.txt";
-    socialGraphFile = "social_graph.txt";
+    databaseFolder = "EmailDatabase";
+    usersFile = databaseFolder + "/users.txt";
+    spamWordsFile = databaseFolder + "/spam_words.txt";
+    socialGraphFile = databaseFolder + "/social_graph.txt";
+
+    createDirectory(databaseFolder);
   }
 
-  // Load spam words into array
   void loadSpamWords(Array<string> *spamWords)
   {
     ifstream file(spamWordsFile);
     if (!file.is_open())
     {
-      cout << "Creating default spam words file..." << endl;
       createDefaultSpamWords();
       file.open(spamWordsFile);
     }
@@ -45,7 +61,10 @@ public:
       string word;
       while (getline(ss, word, ','))
       {
-        if (!spamWords->isFull())
+        word.erase(0, word.find_first_not_of(" \t\n\r"));
+        word.erase(word.find_last_not_of(" \t\n\r") + 1);
+
+        if (!word.empty() && !spamWords->isFull())
         {
           spamWords->add(word);
         }
@@ -57,34 +76,52 @@ public:
   void createDefaultSpamWords()
   {
     ofstream file(spamWordsFile);
-    file << "Winner,Free,Urgent,Claim,Bonus,Limited,Exclusive,Gift,Guaranteed,Profit";
+    file << "Winner,Free,Urgent,Claim,Bonus,Limited,Exclusive,Gift,Guaranteed,Profit,Prize,Congratulations,Click here,Act now,Cash,Million";
     file.close();
   }
 
-  // Save user to file
   void saveUser(User *user)
   {
-    ofstream file(usersFile, ios::app);
-    if (file.is_open())
+    string userFolder = getUserFolderPath(user->getEmail());
+    createDirectory(userFolder.c_str());
+
+    bool userExists = false;
+    ifstream checkFile(usersFile);
+    string line;
+    while (getline(checkFile, line))
     {
-      file << user->toString() << endl;
-      file.close();
+      if (line.find(user->getEmail()) != string::npos)
+      {
+        userExists = true;
+        break;
+      }
+    }
+    checkFile.close();
+
+    if (!userExists)
+    {
+      ofstream file(usersFile, ios::app);
+      if (file.is_open())
+      {
+        file << user->toString() << endl;
+        file.close();
+      }
     }
   }
 
-  // Load all users into BST
   void loadUsers(BST<string, User *> *usersBST)
   {
     ifstream file(usersFile);
     if (!file.is_open())
     {
-      cout << "No users file found. Creating new one..." << endl;
+      ofstream newFile(usersFile);
+      newFile << "UserId,Username,Email,Password,CreatedDate,LastLogin" << endl;
+      newFile.close();
       return;
     }
 
     string line;
-    // Skip header row
-    getline(file, line);
+    getline(file, line); // Skip header
 
     while (getline(file, line))
     {
@@ -102,7 +139,6 @@ public:
       getline(ss, loginStr, ',');
 
       User *user = new User(userId, username, email, password);
-      // For now, use current time as placeholder since dates are strings
       user->setCreatedDate(time(0));
       user->setLastLogin(time(0));
 
@@ -111,12 +147,13 @@ public:
     file.close();
   }
 
-  // Save all users from BST
   void saveAllUsers(BST<string, User *> *usersBST)
   {
     ofstream file(usersFile);
     if (file.is_open())
     {
+      file << "UserId,Username,Email,Password,CreatedDate,LastLogin" << endl;
+
       int maxUsers = 1000;
       string *keys = new string[maxUsers];
       User **values = new User *[maxUsers];
@@ -134,81 +171,88 @@ public:
     }
   }
 
-  // Save email to file
-  void saveEmail(Email *email)
+  void loadFolderEmails(const string &userEmail, const string &folderName, LinkedList<Email> *emailList)
   {
-    ofstream file(emailsFile, ios::app);
-    if (file.is_open())
-    {
-      file << email->toString() << endl;
-      file.close();
-    }
-  }
+    string filePath = getFolderFilePath(userEmail, folderName);
+    ifstream file(filePath);
 
-  // Load emails for specific user
-  void loadUserEmails(string userEmail, LinkedList<Email> *emailList)
-  {
-    ifstream file(emailsFile);
     if (!file.is_open())
     {
       return;
     }
 
     string line;
-    // Skip header row
-    getline(file, line);
-
     while (getline(file, line))
     {
       if (line.empty())
         continue;
 
       stringstream ss(line);
-      string emailId, sender, receiver, subject, content, tsStr, readStr, spamStr, priorityStr, folder;
+      string id, sender, receiver, subject, content, timestampStr, isReadStr, isSpamStr, priorityStr, folder;
 
-      getline(ss, emailId, ',');
+      getline(ss, id, ',');
       getline(ss, sender, ',');
       getline(ss, receiver, ',');
       getline(ss, subject, ',');
       getline(ss, content, ',');
-      getline(ss, tsStr, ',');
-      getline(ss, readStr, ',');
-      getline(ss, spamStr, ',');
+      getline(ss, timestampStr, ',');
+      getline(ss, isReadStr, ',');
+      getline(ss, isSpamStr, ',');
       getline(ss, priorityStr, ',');
       getline(ss, folder, ',');
 
-      if (receiver == userEmail || sender == userEmail)
-      {
-        Email email(emailId, sender, receiver, subject, content);
-        if (!tsStr.empty())
-          email.setTimestamp(stol(tsStr));
-        email.setIsRead(readStr == "true" || readStr == "1");
-        email.setIsSpam(spamStr == "true" || spamStr == "1");
-        if (!priorityStr.empty())
-          email.setPriority(stoi(priorityStr));
-        email.setFolder(folder);
+      Email email(id, sender, receiver, subject, content);
+      email.setTimestamp(atol(timestampStr.c_str()));
+      email.setIsRead(isReadStr == "1");
+      email.setIsSpam(isSpamStr == "1");
+      email.setPriority(atoi(priorityStr.c_str()));
+      email.setFolder(folder);
 
-        emailList->insert(email);
-      }
+      emailList->insert(email);
     }
     file.close();
   }
 
-  // Save all emails
-  void saveAllEmails(LinkedList<Email> *emailList)
+  void loadUserEmails(string userEmail, LinkedList<Email> *emailList)
   {
-    ofstream file(emailsFile);
-    if (file.is_open())
+    string folders[] = {"Inbox", "Sent", "Drafts", "Spam", "Trash", "Important"};
+
+    for (int i = 0; i < 6; i++)
     {
-      for (int i = 0; i < emailList->getSize(); i++)
-      {
-        file << emailList->get(i).toString() << endl;
-      }
-      file.close();
+      loadFolderEmails(userEmail, folders[i], emailList);
     }
   }
 
-  // Load social graph
+  void saveUserEmails(const string &userEmail,
+                      LinkedList<Email> *inbox,
+                      LinkedList<Email> *sent,
+                      LinkedList<Email> *drafts,
+                      LinkedList<Email> *spam,
+                      LinkedList<Email> *trash,
+                      LinkedList<Email> *important)
+  {
+    string userFolder = getUserFolderPath(userEmail);
+    createDirectory(userFolder.c_str());
+
+    string folderNames[] = {"Inbox", "Sent", "Drafts", "Spam", "Trash", "Important"};
+    LinkedList<Email> *folderLists[] = {inbox, sent, drafts, spam, trash, important};
+
+    for (int f = 0; f < 6; f++)
+    {
+      string filePath = getFolderFilePath(userEmail, folderNames[f]);
+      ofstream file(filePath, ios::trunc);
+
+      if (file.is_open())
+      {
+        for (int i = 0; i < folderLists[f]->getSize(); i++)
+        {
+          file << folderLists[f]->get(i).toString() << endl;
+        }
+        file.close();
+      }
+    }
+  }
+
   void loadSocialGraph(Graph *graph)
   {
     ifstream file(socialGraphFile);
@@ -218,21 +262,17 @@ public:
     }
 
     string line;
-    // Skip header row
-    getline(file, line);
-
     while (getline(file, line))
     {
       if (line.empty())
         continue;
 
       stringstream ss(line);
-      string user1, user2, strengthStr, dateStr;
+      string user1, user2, strengthStr;
 
       getline(ss, user1, ',');
       getline(ss, user2, ',');
-      getline(ss, strengthStr, ',');
-      getline(ss, dateStr, ',');
+      getline(ss, strengthStr);
 
       graph->addUser(user1);
       graph->addUser(user2);
@@ -242,15 +282,11 @@ public:
     file.close();
   }
 
-  // Save social graph
   void saveSocialGraph(Graph *graph)
   {
-    // Implementation depends on graph traversal method
-    // For simplicity, we'll implement basic save functionality
     ofstream file(socialGraphFile);
     if (file.is_open())
     {
-      // This would need custom graph traversal implementation
       file.close();
     }
   }

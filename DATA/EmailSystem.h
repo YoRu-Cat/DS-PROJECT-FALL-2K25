@@ -95,24 +95,18 @@ public:
 
   void saveAllEmails()
   {
-    // Save all emails from all folders to file
-    ofstream file("email.txt");
-    if (file.is_open())
-    {
-      file << "emailId,sender,receiver,subject,content,timestamp,isRead,isSpam,priority,folder" << endl;
+    if (currentUser == nullptr)
+      return;
 
-      // Save from all folders
-      EmailFolder *folders[] = {inbox, sent, drafts, spam, trash, important};
-      for (int f = 0; f < 6; f++)
-      {
-        LinkedList<Email> *emails = folders[f]->getEmails();
-        for (int i = 0; i < emails->getSize(); i++)
-        {
-          file << emails->get(i).toString() << endl;
-        }
-      }
-      file.close();
-    }
+    // Save all emails to user's folder structure
+    fileHandler->saveUserEmails(
+        currentUser->getEmail(),
+        inbox->getEmails(),
+        sent->getEmails(),
+        drafts->getEmails(),
+        spam->getEmails(),
+        trash->getEmails(),
+        important->getEmails());
   }
 
   string generateUserId()
@@ -201,9 +195,10 @@ public:
       string folder = email.getFolder();
 
       // Check for spam ONLY on incoming emails (where receiver is current user)
-      // Don't check sent emails - user can send anything
+      // But NOT on sent emails or self-sent emails already in Inbox
       if (email.getReceiver() == currentUser->getEmail() &&
-          email.getSender() != currentUser->getEmail())
+          email.getSender() != currentUser->getEmail() &&
+          folder != "Spam" && folder != "Trash")
       {
         if (email.containsSpamWords(spamArr, spamWords->getSize()))
         {
@@ -213,6 +208,7 @@ public:
         }
       }
 
+      // Route email to appropriate folder
       if (folder == "Inbox")
         inbox->addEmail(email);
       else if (folder == "Sent")
@@ -299,12 +295,13 @@ public:
       sent->addEmail(newEmail);
       currentUser->addRecentContact(to);
       cout << "Email sent successfully!" << endl;
-      fileHandler->saveEmail(&newEmail);
+      saveData(); // Save all user data
       break;
     case 2:
       newEmail.setFolder("Drafts");
       drafts->addEmail(newEmail);
       cout << "Email saved as draft!" << endl;
+      saveData();
       break;
     case 3:
       scheduledEmails->enqueue(newEmail);
