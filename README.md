@@ -1,198 +1,99 @@
-# Email Management System - Like Gmail
+# YoRuSplScr - Easy Splash Screen for Raylib Games 🎮
 
-## Overview
+A lightweight, easy-to-use splash screen implementation for Raylib games and applications. Add professional animated intros to your projects in minutes!
 
-A comprehensive Email Management System implemented in C++ using custom data structures (no STL containers). The system provides complete email functionality with folder management, spam filtering, contacts, and social connections.
+![YoRu Splash Screen Demo](resources/YoRu_n.gif)
 
-## Data Structures Implemented
+## ✨ Features
 
-1. **Array** - Spam words storage, recent contacts
-2. **Stack** - Undo/redo, navigation history, deleted emails recovery
-3. **Queue** - Scheduled emails, email processing
-4. **Heap (MaxHeap)** - Priority inbox management
-5. **Binary Search Tree (BST)** - User lookup, contact management
-6. **Linked Lists** - Email folders (singly), email navigation (doubly), activity log (circular)
-7. **Graph** - Social connections, spam probability calculation
+- Animated GIF support
+- Customizable display duration
+- Adjustable animation speed
+- Simple integration with any Raylib project
+- Proper resource management
+- Resizable to fit any screen
 
-## Project Structure
+## 🚀 Installation
 
-````
-Email Management System/
-├── main.cpp                    # Main application entry point
-├── DATA/                       # All data structures and classes
-│   ├── Array.h                # Custom array implementation
-│   ├── Stack.h                # Custom stack implementation
-│   ├── Queue.h                # Custom queue implementation
-│   ├── LinkedList.h           # Singly, doubly, and circular linked lists
-│   ├── BST.h                  # Binary Search Tree
-│   ├── Heap.h                 # Max Heap and Priority Queue
-│   ├── Graph.h                # Graph for social connections
-│   ├── Email.h                # Email class
-│   ├── Contact.h              # Contact class
-│   ├── User.h                 # User class
-│   ├── EmailFolder.h          # Email folder management
-│   ├── FileHandler.h          # File I/O operations
-│   └── EmailSystem.h          # Main system controller
-├── users.txt                  # User account data
-├── email.txt                  # Email records
-├── spam_words.txt             # Spam filtering keywords
-└── social_graph.txt           # User connection data
+1. Add the `YoRuSplScr.h` and `YoRuSplScr.cpp` files to your project
+2. Include the header file in your main code
+3. Prepare a GIF file for your splash screen
 
-## Features
+## 📋 Usage
 
-### User Management
-- Account creation with validation
-- Login/logout functionality
-- Password authentication
-- User profile management
+### Basic Implementation
 
-### Email Operations
-- Compose and send emails
-- Save drafts
-- Schedule emails for later
-- View emails in different folders:
-  - Inbox (with priority sorting)
-  - Sent
-  - Drafts
-  - Spam
-  - Trash
-  - Important
-- Search emails by sender/subject
-- Delete and recover emails
-- Empty trash functionality
+```cpp
+#include "raylib.h"
+#include "YoRuSplScr.h"
 
-### Contact Management
-- Add contacts to BST
-- View all contacts
-- Track recent contacts (last 10)
-- Contact search functionality
+int main() {
+  // Initialize window
+  InitWindow(800, 600, "My Game");
+  SetTargetFPS(60);
 
-### Social Features
-- Build social graph of user connections
-- View mutual connections
-- Spam probability calculation based on connections
-- Connection strength tracking
+  // Create splash screen
+  // Parameters: GIF path, frames count, display time (seconds), frames per second
+  SplashScreen splash("resources/splash.gif", 10, 5.0f, 10.0f);
 
-### Spam Filtering
-- Automatic spam detection using keyword matching
-- Configurable spam words list
-- Graph-based spam probability
+  while (!WindowShouldClose()) {
+    // Update splash screen and check if it's complete
+    if (splash.Update(GetFrameTime())) {
+      // Splash screen is complete, you can transition to your game
+    }
 
-## Compilation & Execution
+    BeginDrawing();
+      ClearBackground(BLACK);
 
-### Windows (Using g++)
-```bash
-g++ -o email_system.exe main.cpp -I.
-email_system.exe
-````
+      if (!splash.IsComplete()) {
+        splash.Draw();
+      } else {
+        // Draw your game here
+        DrawText("Welcome to the game!", 260, 300, 20, WHITE);
+      }
+    EndDrawing();
+  }
 
-### Linux/Mac
-
-```bash
-g++ -o email_system main.cpp -I.
-./email_system
+  CloseWindow();
+  return 0;
+}
 ```
 
-## Sample Test Accounts
+### Constructor Parameters
 
-### Users
-
-- **Email:** john_doe@lhr.nu.edu.pk | **Password:** password123
-- **Email:** sarah_smith@lhr.nu.edu.pk | **Password:** securepass456
-- **Email:** admin@lhr.nu.edu.pk | **Password:** adminpass
-
-## Menu Navigation
-
-### Main Menu
-
-1. Create Account
-2. Login
-3. Exit
-
-### Dashboard (After Login)
-
-1. Compose Email
-2. View Inbox
-3. View Inbox (Priority Sorted)
-4. View Sent Emails
-5. View Drafts
-6. View Spam
-7. View Trash
-8. View Important
-9. Search Emails
-10. Delete Email
-11. Recover Last Deleted
-12. Empty Trash
-13. Manage Contacts
-14. Manage Connections
-15. System Statistics
-16. Logout
-
-## Data File Formats
-
-### users.txt
-
-```
-userId,username,email,password,createdDate,lastLogin
+```cpp
+SplashScreen(const char* gifPath, int frames, float displayTime, float framesPerSecond);
 ```
 
-### email.txt
+- **gifPath**: Path to your GIF file
+- **frames**: Number of frames in your GIF
+- **displayTime**: How long to display the splash screen (in seconds)
+- **framesPerSecond**: Animation speed (frames per second)
 
-```
-emailId,sender,receiver,subject,content,timestamp,isRead,isSpam,priority,folder
-```
+### Methods
 
-### spam_words.txt
+- **Update(float deltaTime)**: Updates the animation, returns true when complete
+- **Draw()**: Renders the splash screen
+- **IsComplete()**: Checks if the splash screen has finished
+- **Reset()**: Resets the splash screen to play again
+- **AdjustToScreenSize()**: Adjusts splash screen to fit current window
+- **SetFramesPerSecond(float fps)**: Changes animation speed
 
-```
-Winner,Free,Urgent,Claim,Bonus,Limited,Exclusive,Gift,Guaranteed,Profit
-```
+## 📝 Notes
 
-### social_graph.txt
+- The splash screen automatically centers in the window
+- Make sure your GIF file is properly formatted and accessible
+- For best results, create a GIF with dimensions that match your aspect ratio
 
-```
-user1,user2,connectionStrength,connectionDate
-```
+## 🛠️ Requirements
 
-## Implementation Notes
+- Raylib library
+- C++ compiler
 
-### All Data Structures Are Custom
+## 📄 License
 
-- No STL containers (vector, map, set, etc.) used
-- All implementations from scratch
-- Proper memory management with destructors
+This project is free to use in both personal and commercial projects.
 
-### Design Patterns
+---
 
-- Modular design with separate classes
-- Object-oriented programming principles
-- Separation of concerns (data structures in DATA folder)
-
-### Key Algorithms
-
-- BST insert/search/delete with O(log n) average case
-- Heap operations for priority management
-- Graph traversal for connection analysis
-- Spam detection using multiple criteria
-
-## Future Enhancements
-
-- Email threading and conversation view
-- Advanced search filters
-- Attachment handling
-- Email scheduling with specific time
-- Multi-language support
-- Backup and restore functionality
-
-## Author
-
-24L-0602
-YoRu-Cat
-
-## Date
-
-November 2025
-
-```
-
-```
+Made with ❤️ by YoRu

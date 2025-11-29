@@ -90,6 +90,29 @@ public:
   {
     fileHandler->saveAllUsers(users);
     fileHandler->saveSocialGraph(socialGraph);
+    saveAllEmails();
+  }
+
+  void saveAllEmails()
+  {
+    // Save all emails from all folders to file
+    ofstream file("email.txt");
+    if (file.is_open())
+    {
+      file << "emailId,sender,receiver,subject,content,timestamp,isRead,isSpam,priority,folder" << endl;
+
+      // Save from all folders
+      EmailFolder *folders[] = {inbox, sent, drafts, spam, trash, important};
+      for (int f = 0; f < 6; f++)
+      {
+        LinkedList<Email> *emails = folders[f]->getEmails();
+        for (int i = 0; i < emails->getSize(); i++)
+        {
+          file << emails->get(i).toString() << endl;
+        }
+      }
+      file.close();
+    }
   }
 
   string generateUserId()
@@ -165,10 +188,30 @@ public:
     LinkedList<Email> allEmails;
     fileHandler->loadUserEmails(currentUser->getEmail(), &allEmails);
 
+    // Prepare spam words array for checking incoming emails
+    string spamArr[20];
+    for (int i = 0; i < spamWords->getSize(); i++)
+    {
+      spamArr[i] = spamWords->get(i);
+    }
+
     for (int i = 0; i < allEmails.getSize(); i++)
     {
       Email email = allEmails.get(i);
       string folder = email.getFolder();
+
+      // Check for spam ONLY on incoming emails (where receiver is current user)
+      // Don't check sent emails - user can send anything
+      if (email.getReceiver() == currentUser->getEmail() &&
+          email.getSender() != currentUser->getEmail())
+      {
+        if (email.containsSpamWords(spamArr, spamWords->getSize()))
+        {
+          email.setIsSpam(true);
+          email.setFolder("Spam");
+          folder = "Spam";
+        }
+      }
 
       if (folder == "Inbox")
         inbox->addEmail(email);
@@ -235,20 +278,6 @@ public:
     Email newEmail(generateEmailId(), currentUser->getEmail(), to, subject, content);
     newEmail.setPriority(priority);
 
-    // Check for spam
-    string spamArr[20];
-    for (int i = 0; i < spamWords->getSize(); i++)
-    {
-      spamArr[i] = spamWords->get(i);
-    }
-
-    if (newEmail.containsSpamWords(spamArr, spamWords->getSize()))
-    {
-      newEmail.setIsSpam(true);
-      newEmail.setFolder("Spam");
-      cout << "Warning: Email contains spam keywords!" << endl;
-    }
-
     int choice;
     cout << "\n1. Send Now" << endl;
     cout << "2. Save as Draft" << endl;
@@ -266,18 +295,10 @@ public:
     switch (choice)
     {
     case 1:
-      if (newEmail.getIsSpam())
-      {
-        spam->addEmail(newEmail);
-        cout << "Email moved to Spam folder due to spam content!" << endl;
-      }
-      else
-      {
-        newEmail.setFolder("Sent");
-        sent->addEmail(newEmail);
-        currentUser->addRecentContact(to);
-        cout << "Email sent successfully!" << endl;
-      }
+      newEmail.setFolder("Sent");
+      sent->addEmail(newEmail);
+      currentUser->addRecentContact(to);
+      cout << "Email sent successfully!" << endl;
       fileHandler->saveEmail(&newEmail);
       break;
     case 2:
@@ -511,6 +532,14 @@ public:
 
   bool isLoggedIn() { return currentUser != nullptr; }
   User *getCurrentUser() { return currentUser; }
+
+  // Folder getters for UI
+  EmailFolder *getInbox() { return inbox; }
+  EmailFolder *getSent() { return sent; }
+  EmailFolder *getDrafts() { return drafts; }
+  EmailFolder *getSpam() { return spam; }
+  EmailFolder *getTrash() { return trash; }
+  EmailFolder *getImportant() { return important; }
 };
 
 #endif
