@@ -2,6 +2,7 @@
 #define BST_H
 
 #include <iostream>
+#include "LinkedList.h"
 using namespace std;
 
 // Binary Search Tree template
@@ -131,6 +132,16 @@ private:
     }
   }
 
+  void collectToList(Node *node, LinkedList<V> &list)
+  {
+    if (node != nullptr)
+    {
+      collectToList(node->left, list);
+      list.insert(node->value);
+      collectToList(node->right, list);
+    }
+  }
+
   void clear(Node *node)
   {
     if (node != nullptr)
@@ -190,6 +201,11 @@ public:
   {
     int index = 0;
     collectToArray(root, keys, values, index, maxSize);
+  }
+
+  void inorderTraversal(LinkedList<V> &list)
+  {
+    collectToList(root, list);
   }
 
   void clear()

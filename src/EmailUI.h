@@ -82,6 +82,12 @@ private:
   // Contacts
   Button *addContactButton;
   std::vector<Button *> contactButtons;
+  TextBox *contactNameInput;
+  TextBox *contactEmailInput;
+  TextBox *contactPhoneInput;
+  Button *saveContactButton;
+  Button *cancelContactButton;
+  bool showAddContactModal;
 
   // Connections
   Button *addConnectionButton;

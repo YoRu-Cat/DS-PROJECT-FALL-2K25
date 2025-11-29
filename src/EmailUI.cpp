@@ -64,6 +64,13 @@ EmailUI::EmailUI(int width, int height)
   markSpamButton = nullptr;
 
   addContactButton = nullptr;
+  contactNameInput = nullptr;
+  contactEmailInput = nullptr;
+  contactPhoneInput = nullptr;
+  saveContactButton = nullptr;
+  cancelContactButton = nullptr;
+  showAddContactModal = false;
+
   addConnectionButton = nullptr;
   viewConnectionsButton = nullptr;
   connectionEmailInput = nullptr;
@@ -128,6 +135,12 @@ EmailUI::~EmailUI()
   delete markSpamButton;
 
   delete addContactButton;
+  delete contactNameInput;
+  delete contactEmailInput;
+  delete contactPhoneInput;
+  delete saveContactButton;
+  delete cancelContactButton;
+
   delete addConnectionButton;
   delete viewConnectionsButton;
   delete connectionEmailInput;
@@ -205,6 +218,15 @@ void EmailUI::Initialize()
   // Contacts button - positioned at top-right corner
   addContactButton = new Button(Rectangle{screenWidth - 200, 20, 180, 50}, "+ Add Contact", UIColors::SUCCESS);
 
+  // Contact modal components (700x380 modal centered at y=220)
+  float contactModalX = (screenWidth - 700) / 2;
+  float contactModalY = 220;
+  contactNameInput = new TextBox(Rectangle{contactModalX + 50, contactModalY + 100, 600, 50}, "Name");
+  contactEmailInput = new TextBox(Rectangle{contactModalX + 50, contactModalY + 170, 600, 50}, "Email");
+  contactPhoneInput = new TextBox(Rectangle{contactModalX + 50, contactModalY + 240, 600, 50}, "Phone (optional)");
+  saveContactButton = new Button(Rectangle{contactModalX + 40, contactModalY + 310, 310, 55}, "Add Contact", UIColors::PRIMARY);
+  cancelContactButton = new Button(Rectangle{contactModalX + 360, contactModalY + 310, 300, 55}, "Cancel", UIColors::SECONDARY);
+
   // Connections button - positioned at top-right corner
   addConnectionButton = new Button(Rectangle{screenWidth - 220, 20, 200, 50}, "+ Add Connection", UIColors::SUCCESS);
 
@@ -259,6 +281,9 @@ void EmailUI::Update(float deltaTime)
   case Screen::STATS:
     UpdateStatsScreen();
     break;
+  case Screen::SETTINGS:
+    // Settings screen update - placeholder
+    break;
   case Screen::SCHEDULED_EMAILS:
     UpdateScheduledEmailsScreen();
     break;
@@ -312,6 +337,18 @@ void EmailUI::Draw()
     break;
   case Screen::STATS:
     DrawStatsScreen();
+    break;
+  case Screen::SETTINGS:
+    // Settings screen draw - placeholder
+    break;
+  case Screen::SCHEDULED_EMAILS:
+    // Scheduled emails screen - placeholder
+    break;
+  case Screen::ACTIVITY_LOG:
+    // Activity log screen - placeholder
+    break;
+  case Screen::SYSTEM_CONFIG:
+    // System config screen - placeholder
     break;
   }
 
@@ -743,9 +780,89 @@ void EmailUI::DrawContactsScreen()
   DrawTextSpaced("Contacts", sidebarWidth + 40, 30, 36, {255, 255, 255, 255});
   DrawLine(sidebarWidth + 20, 80, screenWidth - 20, 80, UIColors::BORDER);
 
+  if (emailSystem->isLoggedIn() && emailSystem->getCurrentUser())
+  {
+    User *currentUser = emailSystem->getCurrentUser();
+    BST<string, Contact> *contacts = currentUser->getContacts();
+
+    float yPos = 150;
+    float xPos = sidebarWidth + 40;
+
+    if (contacts->isEmpty())
+    {
+      DrawTextSpaced("No contacts yet. Add contacts to build your network!",
+                     xPos, yPos, 20, {200, 200, 200, 255});
+    }
+    else
+    {
+      DrawTextSpaced(TextFormat("Total Contacts: %d", contacts->getSize()),
+                     xPos, yPos, 22, {255, 255, 255, 255});
+      yPos += 50;
+
+      // Get all contacts as a list
+      LinkedList<Contact> contactList;
+      contacts->inorderTraversal(contactList);
+
+      for (int i = 0; i < contactList.getSize(); i++)
+      {
+        Contact contact = contactList.get(i);
+
+        DrawRectangle(xPos - 10, yPos - 5, screenWidth - sidebarWidth - 80, 100, {255, 255, 255, 30});
+        DrawRectangleLinesEx(Rectangle{xPos - 10, yPos - 5, (float)(screenWidth - sidebarWidth - 80), 100},
+                             1, {255, 255, 255, 100});
+
+        DrawTextSpaced(contact.getName().c_str(), xPos, yPos, 22, {255, 255, 255, 255});
+        DrawTextSpaced(contact.getEmail().c_str(), xPos, yPos + 28, 18, {180, 180, 255, 255});
+
+        if (!contact.getPhone().empty())
+        {
+          DrawTextSpaced(TextFormat("Phone: %s", contact.getPhone().c_str()), xPos, yPos + 52, 16, {150, 200, 150, 255});
+        }
+
+        DrawTextSpaced(TextFormat("Interactions: %d", contact.getInteractionCount()),
+                       xPos, yPos + 72, 16, {200, 200, 200, 255});
+
+        // Delete button
+        Rectangle deleteBtn = {xPos + screenWidth - sidebarWidth - 250, yPos + 25, 140, 40};
+        DrawRectangle(deleteBtn.x, deleteBtn.y, deleteBtn.width, deleteBtn.height, UIColors::DANGER);
+        DrawRectangleLinesEx(deleteBtn, 2, {255, 255, 255, 100});
+        int btnTextWidth = MeasureText("Remove", 18);
+        DrawText("Remove", deleteBtn.x + (deleteBtn.width - btnTextWidth) / 2,
+                 deleteBtn.y + 11, 18, {255, 255, 255, 255});
+
+        yPos += 110;
+
+        if (yPos > screenHeight - 150)
+          break;
+      }
+    }
+  }
+
   addContactButton->Draw();
 
-  DrawTextSpaced("Contact management coming soon...", sidebarWidth + 40, 150, 20, {255, 255, 255, 255});
+  // Add contact modal
+  if (showAddContactModal)
+  {
+    DrawRectangle(0, 0, screenWidth, screenHeight, {0, 0, 0, 180});
+
+    float modalWidth = 700;
+    float modalHeight = 380;
+    float modalX = (screenWidth - modalWidth) / 2;
+    float modalY = 220;
+
+    DrawRectangle(modalX, modalY, modalWidth, modalHeight, {35, 35, 45, 255});
+    DrawRectangleLinesEx(Rectangle{modalX, modalY, modalWidth, modalHeight}, 3, {100, 150, 255, 255});
+
+    DrawTextSpaced("Add New Contact", modalX + 40, modalY + 25, 32, {255, 255, 255, 255});
+    DrawLine(modalX + 30, modalY + 70, modalX + modalWidth - 30, modalY + 70, {100, 150, 255, 255});
+
+    contactNameInput->Draw();
+    contactEmailInput->Draw();
+    contactPhoneInput->Draw();
+
+    saveContactButton->Draw();
+    cancelContactButton->Draw();
+  }
 }
 
 void EmailUI::DrawConnectionsScreen()
@@ -964,8 +1081,8 @@ void EmailUI::UpdateMainDashboard()
   changeBgButton->Update();
 
   // Sidebar navigation
-  const char *menuItems[] = {("Inbox", "Sent", "Drafts", "Spam", "Trash", "Important", "Contacts", "Connections", "Stats"), "Scheduled", "Activity", "Config"};
-  int clicked = sidebar->Update(menuItems, 11);
+  const char *menuItems[] = {"Inbox", "Sent", "Drafts", "Spam", "Trash", "Important", "Contacts", "Connections", "Stats", "Scheduled", "Activity", "Config"};
+  int clicked = sidebar->Update(menuItems, 12);
 
   if (clicked >= 0)
   {
@@ -1233,8 +1350,98 @@ void EmailUI::UpdateContactsScreen()
 
   if (addContactButton->IsClicked())
   {
-    // Add contact functionality
-    ShowMessage("Add contact functionality");
+    showAddContactModal = true;
+  }
+
+  // Handle add contact modal
+  if (showAddContactModal)
+  {
+    contactNameInput->Update();
+    contactEmailInput->Update();
+    contactPhoneInput->Update();
+    saveContactButton->Update();
+    cancelContactButton->Update();
+
+    if (saveContactButton->IsClicked())
+    {
+      string name = contactNameInput->GetText();
+      string email = contactEmailInput->GetText();
+      string phone = contactPhoneInput->GetText();
+
+      if (!name.empty() && !email.empty())
+      {
+        User *currentUser = emailSystem->getCurrentUser();
+        if (currentUser)
+        {
+          // Generate contact ID
+          string contactId = "contact_" + to_string(time(nullptr));
+          Contact newContact(contactId, name, email, phone);
+
+          // Add to user's contacts BST
+          currentUser->getContacts()->insert(email, newContact);
+
+          // Save to file
+          emailSystem->saveData();
+
+          ShowMessage("Contact added successfully!");
+
+          // Clear inputs
+          contactNameInput->SetText("");
+          contactEmailInput->SetText("");
+          contactPhoneInput->SetText("");
+
+          showAddContactModal = false;
+        }
+      }
+      else
+      {
+        ShowMessage("Name and Email are required!");
+      }
+    }
+
+    if (cancelContactButton->IsClicked())
+    {
+      contactNameInput->SetText("");
+      contactEmailInput->SetText("");
+      contactPhoneInput->SetText("");
+      showAddContactModal = false;
+    }
+  }
+  else
+  {
+    // Handle remove contact buttons
+    if (emailSystem->isLoggedIn() && emailSystem->getCurrentUser())
+    {
+      User *currentUser = emailSystem->getCurrentUser();
+      BST<string, Contact> *contacts = currentUser->getContacts();
+
+      if (!contacts->isEmpty())
+      {
+        LinkedList<Contact> contactList;
+        contacts->inorderTraversal(contactList);
+
+        float yPos = 150 + 50;
+        float xPos = sidebarWidth + 40;
+
+        for (int i = 0; i < contactList.getSize(); i++)
+        {
+          Contact contact = contactList.get(i);
+          Rectangle deleteBtn = {xPos + screenWidth - sidebarWidth - 250, yPos + 25, 140, 40};
+
+          if (CheckCollisionPointRec(GetMousePosition(), deleteBtn) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+          {
+            contacts->remove(contact.getEmail());
+            emailSystem->saveData();
+            ShowMessage("Contact removed!");
+            break;
+          }
+
+          yPos += 110;
+          if (yPos > screenHeight - 150)
+            break;
+        }
+      }
+    }
   }
 }
 
