@@ -1,0 +1,1500 @@
+================================================================================
+                    EMAIL MANAGEMENT SYSTEM - ALL FUNCTIONS LIST
+================================================================================
+
+This document lists ALL functions in the Email Management System with their
+purposes and how they work.
+
+================================================================================
+                        1. EMAIL SYSTEM CLASS (EmailSystem.h)
+================================================================================
+
+CONSTRUCTOR & DESTRUCTOR
+------------------------
+EmailSystem()
+    - Initializes all data structures (BST, Graph, Stacks, Queues, Heaps, Arrays)
+    - Creates 6 email folders (Inbox, Sent, Drafts, Spam, Trash, Important)
+    - Loads all data from files (users, spam words, social graph, emails)
+    - Sets up system configuration
+
+~EmailSystem()
+    - Saves all data before program terminates
+    - Deallocates all dynamically allocated memory
+    - Prevents memory leaks
+
+DATA MANAGEMENT FUNCTIONS
+--------------------------
+void loadData()
+    - Loads spam words from spam_words.txt into Array
+    - Loads all users from users.txt into BST
+    - Loads all contacts and connections for each user
+    - Loads social graph relationships
+
+void saveData()
+    - Saves all users to users.txt
+    - Saves social graph to social_graph.txt
+    - Saves all emails to respective folder files
+    - Saves all contacts and connections for each user
+
+void saveAllContactsAndConnections()
+    - Iterates through all users in BST
+    - For each user, saves their contacts BST to contacts.txt
+    - For each user, saves their connections LinkedList to connections.txt
+    - Maintains data persistence
+
+void loadAllContactsAndConnections()
+    - Loads each user's contacts from contacts.txt into BST
+    - Loads each user's connections from connections.txt into LinkedLists
+    - Rebuilds the social graph connections
+    - Syncs Graph data structure with file data
+
+void saveAllEmails()
+    - Saves current user's emails from all 6 folders
+    - Writes to separate files: Inbox.txt, Sent.txt, Drafts.txt, etc.
+    - Preserves email metadata (read status, importance, spam flags)
+
+void loadUserEmails()
+    - Loads all emails for current logged-in user
+    - Routes emails to appropriate folders based on folder field
+    - Applies spam filtering to incoming emails
+    - Updates folder data structures
+
+void clearFolders()
+    - Empties all 6 email folders (Inbox, Sent, Drafts, Spam, Trash, Important)
+    - Used during logout to reset folder state
+    - Prepares system for next user login
+
+USER ACCOUNT FUNCTIONS
+-----------------------
+bool createAccount(string username, string email, string password)
+    - Checks if email already exists in BST (prevents duplicates)
+    - Generates unique user ID
+    - Creates new User object with provided credentials
+    - Inserts user into BST with email as key
+    - Adds user to social graph as node
+    - Saves user to users.txt file
+    - Returns true if successful, false if email exists
+
+bool login(string email, string password)
+    - Searches for user in BST by email
+    - Validates password using User::validatePassword()
+    - Sets currentUser pointer if successful
+    - Updates user's last login timestamp
+    - Loads all user's emails from database
+    - Returns true if login successful, false otherwise
+
+void logout()
+    - Saves all current data (emails, contacts, connections)
+    - Sets currentUser to nullptr
+    - Clears all folder data structures
+    - Prepares system for next user login
+
+EMAIL COMPOSITION & SENDING
+----------------------------
+void composeEmail()
+    - Prompts user for recipient, subject, content, priority
+    - Generates unique email ID
+    - Creates Email object with current user as sender
+    - Offers 3 options:
+        1. Send Now - adds to Sent folder, saves immediately
+        2. Save as Draft - stores in Drafts folder
+        3. Schedule for Later - enqueues to scheduledEmails Queue
+    - Updates recent contacts Array for sender
+    - Saves data to persist changes
+
+bool deliverEmailToUser(Email email, string recipientEmail)
+    - Searches for recipient in users BST
+    - Loads recipient's email files from database
+    - Checks if email is spam using spam word detection
+    - Adds to recipient's Inbox or Spam folder accordingly
+    - Saves updated recipient inbox/spam folder
+    - Returns true if delivered, false if recipient not found
+
+FOLDER MANAGEMENT
+-----------------
+void viewFolder(string folderName)
+    - Pushes folder name to navigation Stack (for back button)
+    - Gets the appropriate EmailFolder object (Inbox, Sent, etc.)
+    - Calls displayAllEmails() to show all emails in folder
+    - Displays emails in chronological order
+
+void viewInboxByPriority()
+    - Uses MaxHeap priorityHeap from EmailFolder
+    - Displays emails sorted by priority (highest first)
+    - Shows most important emails at top
+
+EMAIL OPERATIONS
+----------------
+void searchEmail()
+    - Prompts user for search query (sender or subject)
+    - Searches through ALL 6 folders using LinkedList traversal
+    - Checks if query string exists in sender or subject fields
+    - Displays matching emails with their folder location
+    - Uses string::find() for partial matching
+
+void deleteEmail(string emailId, string folderName)
+    - Finds email in specified folder by ID
+    - Removes from current folder using LinkedList::removeAt()
+    - Changes email's folder field to "Trash"
+    - Adds email to Trash folder
+    - Pushes email to deletedEmailsStack for recovery
+    - Displays confirmation message
+
+void deleteEmailWithUndo(string emailId, string folderName)
+    - Enhanced version of deleteEmail
+    - Pushes email to undoStack before deleting
+    - Allows user to undo the delete operation
+    - Logs activity for audit trail
+
+void recoverLastDeleted()
+    - Checks if deletedEmailsStack is empty
+    - Pops most recently deleted email from Stack
+    - Adds email back to Inbox folder
+    - Provides one-level delete recovery
+
+void updateEmail(Email updatedEmail)
+    - Finds email in appropriate folder by email ID
+    - Uses LinkedList iterator to traverse emails
+    - Replaces old email with updated email object
+    - Saves changes to file system
+    - Used for marking read/unread, changing importance, etc.
+
+void emptyTrash()
+    - Calls Trash folder's clearFolder() method
+    - Permanently removes all emails from Trash
+    - Cannot be undone
+    - Frees memory occupied by deleted emails
+
+CONTACT MANAGEMENT
+------------------
+void addContact()
+    - Prompts for contact name, email, phone
+    - Validates required fields (name and email)
+    - Generates unique contact ID with timestamp
+    - Creates Contact object
+    - Inserts into current user's contacts BST (key = email)
+    - Saves to user's contacts.txt file
+
+void viewContacts()
+    - Gets current user's contacts BST
+    - Performs in-order traversal (alphabetically sorted)
+    - Displays all contacts with details:
+        - Name, Email, Phone, Interaction Count
+
+void viewRecentContacts()
+    - Accesses user's recentContacts Array (size 10)
+    - Displays last 10 contacted users in order
+    - Useful for quick email composition
+
+SOCIAL NETWORK FUNCTIONS
+-------------------------
+void addSocialConnection(string userEmail)
+    - Checks if target user exists in users BST
+    - Adds bidirectional edge in Graph between current user and target
+    - Sets initial connection strength to 1
+    - Updates both users' adjacency lists
+    - Saves to connections.txt files
+
+void viewMutualConnections(string userEmail)
+    - Calls Graph::getMutualConnections()
+    - Finds common connections between two users
+    - Iterates both users' adjacency lists
+    - Returns LinkedList of mutual connections
+    - Displays list of shared friends
+
+SPAM FILTERING
+--------------
+bool isSpamEmail(Email email)
+    - Extracts spam words from spamWords Array
+    - Calls Email::containsSpamWords()
+    - Checks email subject and content for spam keywords
+    - Returns true if spam detected, false otherwise
+
+UNDO/REDO FUNCTIONALITY
+-----------------------
+void undoEmailOperation()
+    - Checks if undoStack is empty
+    - Pops last operation from undoStack
+    - Pushes to redoStack (for redo capability)
+    - Reverses the operation (e.g., restores deleted email)
+    - Logs activity
+
+void redoEmailOperation()
+    - Checks if redoStack is empty
+    - Pops last undone operation from redoStack
+    - Pushes back to undoStack
+    - Re-applies the operation
+    - Logs activity
+
+PRIORITY EMAIL QUEUE
+--------------------
+void addToPriorityQueue(Email email)
+    - Adds high-priority email to PriorityQueue (Min Heap)
+    - Emails with priority >= 3 automatically added
+    - Orders by priority value (highest first)
+    - Logs activity
+
+Email getNextPriorityEmail()
+    - Dequeues highest priority email from PriorityQueue
+    - Throws exception if queue empty
+    - Logs processing activity
+    - Returns Email object
+
+SCHEDULED EMAIL PROCESSING
+---------------------------
+void processScheduledEmails()
+    - Checks if scheduledEmails Queue is empty
+    - Dequeues all scheduled emails (FIFO order)
+    - Changes folder to "Sent"
+    - Adds to Sent folder
+    - Delivers to recipients using deliverEmailToUser()
+    - Logs each sent email
+    - Saves all changes
+
+INCOMING EMAIL QUEUE
+--------------------
+void addToIncomingQueue(Email email)
+    - Enqueues incoming email to incomingEmailQueue
+    - Used for batch processing of received emails
+
+void processIncomingEmails()
+    - Dequeues all emails from incomingEmailQueue (FIFO)
+    - For each email:
+        - Checks for spam using isSpamEmail()
+        - Routes to Spam folder if spam detected
+        - Routes to Inbox if legitimate
+        - Adds high-priority emails to priorityEmailQueue
+    - Saves all changes
+
+TIMESTAMP ORGANIZATION
+----------------------
+void organizeByTimestamp()
+    - Adds all Inbox emails to timestampHeap (Max Heap)
+    - Extracts emails in order (newest first)
+    - Displays top 10 most recent emails
+    - Demonstrates heap-based sorting
+
+ACTIVITY LOG
+------------
+void logActivity(string activity)
+    - Adds activity string to activityLog LinkedList
+    - Prepends timestamp to activity
+    - Maintains circular buffer behavior (max 20 entries)
+    - Removes oldest entry if size exceeds 20
+
+void displayActivityLog()
+    - Iterates through activityLog LinkedList
+    - Displays all recent activities in order
+    - Shows chronological history of user actions
+
+SYSTEM CONFIGURATION
+--------------------
+void loadSystemConfig()
+    - Loads predefined system settings into systemConfig Array
+    - Settings include:
+        - AutoSaveInterval, MaxInboxSize, SpamFilterEnabled
+        - AutoDeleteTrash, EnableNotifications, Theme
+        - FontSize, Language
+
+void displaySystemConfig()
+    - Iterates through systemConfig Array
+    - Displays all configuration key-value pairs
+
+string getConfigValue(string key)
+    - Searches systemConfig Array for matching key
+    - Extracts value after '=' character
+    - Returns value string or empty if not found
+
+STATISTICS
+----------
+void displaySystemStats()
+    - Displays comprehensive system statistics:
+        - Total users count (from BST size)
+        - Email count per folder
+        - Unread email count in Inbox
+        - Scheduled emails count
+    - Uses folder->getEmailCount() for each folder
+
+int getScheduledEmailCount()
+    - Returns size of scheduledEmails Queue
+
+int getIncomingQueueCount()
+    - Returns size of incomingEmailQueue
+
+int getPriorityQueueCount()
+    - Returns size of priorityEmailQueue
+
+UTILITY FUNCTIONS
+-----------------
+string generateUserId()
+    - Creates unique user ID in format "U1001", "U1002", etc.
+    - Increments nextUserId counter
+    - Returns generated ID string
+
+string generateEmailId()
+    - Creates unique email ID in format "E1001", "E1002", etc.
+    - Increments nextEmailId counter
+    - Returns generated ID string
+
+EmailFolder* getFolderByName(string folderName)
+    - Maps folder name string to EmailFolder pointer
+    - Returns appropriate folder object
+    - Returns nullptr if folder name invalid
+
+GETTERS
+-------
+bool isLoggedIn()
+    - Returns true if currentUser is not nullptr
+
+User* getCurrentUser()
+    - Returns pointer to currently logged-in user
+
+Graph* getSocialGraph()
+    - Returns pointer to social graph for UI access
+
+BST<string, User*>* getUsers()
+    - Returns pointer to users BST for user validation
+
+EmailFolder* getInbox()
+EmailFolder* getSent()
+EmailFolder* getDrafts()
+EmailFolder* getSpam()
+EmailFolder* getTrash()
+EmailFolder* getImportant()
+    - Return pointers to respective folder objects
+
+bool canUndo()
+    - Returns true if undoStack is not empty
+
+bool canRedo()
+    - Returns true if redoStack is not empty
+
+
+================================================================================
+                        2. USER CLASS (User.h)
+================================================================================
+
+CONSTRUCTOR & DESTRUCTOR
+------------------------
+User()
+    - Default constructor
+    - Initializes empty user with null values
+    - Creates empty contacts BST
+    - Creates empty recentContacts Array (size 10)
+
+User(string id, string uname, string email, string pass)
+    - Parameterized constructor
+    - Sets user ID, username, email, password
+    - Sets created date and last login to current time
+    - Initializes contacts BST and recentContacts Array
+
+~User()
+    - Deallocates contacts BST
+    - Deallocates recentContacts Array
+    - Prevents memory leaks
+
+GETTERS
+-------
+string getUserId()
+    - Returns user's unique ID
+
+string getUsername()
+    - Returns user's display name
+
+string getEmail()
+    - Returns user's email address (also BST key)
+
+string getPassword()
+    - Returns user's password (used for validation)
+
+time_t getCreatedDate()
+    - Returns timestamp of account creation
+
+time_t getLastLogin()
+    - Returns timestamp of last login
+
+BST<string, Contact>* getContacts()
+    - Returns pointer to user's contacts BST
+
+SETTERS
+-------
+void setUsername(string uname)
+    - Updates user's username
+
+void setEmail(string mail)
+    - Updates user's email address
+
+void setPassword(string pass)
+    - Updates user's password
+
+void setLastLogin(time_t login)
+    - Updates last login timestamp
+
+void setCreatedDate(time_t created)
+    - Updates account creation date
+
+AUTHENTICATION
+--------------
+bool validatePassword(string pass)
+    - Compares provided password with stored password
+    - Returns true if match, false otherwise
+    - Used during login
+
+CONTACT OPERATIONS
+------------------
+void addContact(Contact newContact)
+    - Inserts contact into contacts BST
+    - Uses contact email as key
+    - Automatically maintains sorted order
+
+Contact* searchContact(string email)
+    - Searches contacts BST for contact with given email
+    - Returns pointer to Contact if found
+    - Returns nullptr if not found
+
+void removeContact(string email)
+    - Removes contact from BST by email key
+    - BST automatically rebalances
+    - Contact is deleted from memory
+
+void addRecentContact(string contactEmail)
+    - Adds email to recentContacts Array
+    - Implements circular buffer behavior
+    - If array full, shifts all elements left
+    - Adds new contact at end
+    - Maintains last 10 contacted users
+
+DISPLAY FUNCTIONS
+-----------------
+void displayRecentContacts()
+    - Iterates through recentContacts Array
+    - Displays emails in order (most recent first)
+
+void displayAllContacts()
+    - Gets all contacts from BST using getAllEntries()
+    - Displays contacts in alphabetical order (by email)
+    - Shows name, email, phone, interaction count
+    - Demonstrates BST in-order traversal
+
+string toString()
+    - Converts user data to CSV string format
+    - Format: userId,username,email,password,createdDate,lastLogin
+    - Used for file storage
+
+void display()
+    - Displays formatted user profile
+    - Shows user ID, username, email
+    - Shows creation date and last login
+
+
+================================================================================
+                        3. EMAIL CLASS (Email.h)
+================================================================================
+
+CONSTRUCTOR & DESTRUCTOR
+------------------------
+Email()
+    - Default constructor
+    - Initializes empty email with default values
+    - Sets timestamp to current time
+    - Sets priority to 0, flags to false
+
+Email(string id, string sender, string receiver, string sub, string cont)
+    - Parameterized constructor
+    - Sets email ID, sender, receiver, subject, content
+    - Sets timestamp to current time
+    - Initializes other fields to defaults
+
+GETTERS
+-------
+string getEmailId()
+    - Returns unique email identifier
+
+string getSender()
+    - Returns sender's email address
+
+string getReceiver()
+    - Returns recipient's email address
+
+string getSubject()
+    - Returns email subject line
+
+string getContent()
+    - Returns email body content
+
+time_t getTimestamp()
+    - Returns email creation timestamp
+
+int getPriority()
+    - Returns priority level (0-5)
+
+bool getIsRead()
+    - Returns read status flag
+
+bool getIsImportant()
+    - Returns importance flag
+
+bool getIsSpam()
+    - Returns spam detection flag
+
+string getFolder()
+    - Returns folder name where email is stored
+
+SETTERS
+-------
+void setIsRead(bool read)
+    - Updates read status
+
+void setIsImportant(bool important)
+    - Marks/unmarks email as important
+
+void setIsSpam(bool spam)
+    - Marks/unmarks email as spam
+
+void setFolder(string folder)
+    - Sets the folder name
+
+void setPriority(int p)
+    - Sets priority level (0-5)
+
+COMPARISON OPERATORS
+--------------------
+bool operator>(const Email &other)
+    - Compares emails by timestamp
+    - Used in MaxHeap for sorting
+    - Returns true if this email is newer
+
+bool operator<(const Email &other)
+    - Compares emails by timestamp
+    - Used in MinHeap for sorting
+    - Returns true if this email is older
+
+UTILITY FUNCTIONS
+-----------------
+bool containsSpamWords(string spamWords[], int size)
+    - Checks subject and content for spam keywords
+    - Converts text to lowercase for case-insensitive matching
+    - Returns true if any spam word found
+
+string toString()
+    - Converts email to CSV string format
+    - Format: id,sender,receiver,subject,content,timestamp,priority,isRead,isImportant,isSpam,folder
+    - Used for file storage
+
+void display()
+    - Displays formatted email details
+    - Shows all fields in readable format
+    - Includes status indicators (Read/Unread, Important, Spam)
+
+
+================================================================================
+                        4. CONTACT CLASS (Contact.h)
+================================================================================
+
+CONSTRUCTOR
+-----------
+Contact()
+    - Default constructor
+    - Initializes empty contact
+
+Contact(string id, string n, string e, string p)
+    - Parameterized constructor
+    - Sets contact ID, name, email, phone
+    - Initializes interaction count to 0
+
+GETTERS
+-------
+string getContactId()
+    - Returns unique contact identifier
+
+string getName()
+    - Returns contact's full name
+
+string getEmail()
+    - Returns contact's email (also BST key)
+
+string getPhone()
+    - Returns contact's phone number
+
+int getInteractionCount()
+    - Returns number of email exchanges with contact
+
+SETTERS
+-------
+void setName(string n)
+    - Updates contact's name
+
+void setEmail(string e)
+    - Updates contact's email
+
+void setPhone(string p)
+    - Updates contact's phone number
+
+OPERATIONS
+----------
+void incrementInteraction()
+    - Increments interaction count by 1
+    - Called when email is sent to this contact
+
+void display()
+    - Displays formatted contact details
+    - Shows name, email, phone, interaction count
+
+
+================================================================================
+                        5. EMAIL FOLDER CLASS (EmailFolder.h)
+================================================================================
+
+CONSTRUCTOR & DESTRUCTOR
+------------------------
+EmailFolder(string name)
+    - Creates folder with given name
+    - Initializes emails LinkedList
+    - Initializes priorityHeap MaxHeap (capacity 100)
+    - Initializes recentEmails Stack (max 10)
+
+~EmailFolder()
+    - Deallocates emails LinkedList
+    - Deallocates priorityHeap
+    - Deallocates recentEmails Stack
+
+GETTERS
+-------
+string getFolderName()
+    - Returns folder name (Inbox, Sent, etc.)
+
+LinkedList<Email>* getEmails()
+    - Returns pointer to emails LinkedList
+    - Used for iteration and access
+
+int getEmailCount()
+    - Returns total number of emails in folder
+    - Uses LinkedList::getSize()
+
+int getUnreadCount()
+    - Iterates through all emails
+    - Counts emails where isRead == false
+    - Returns unread count
+
+EMAIL OPERATIONS
+----------------
+void addEmail(Email newEmail)
+    - Inserts email into emails LinkedList
+    - Inserts email into priorityHeap for priority view
+    - Pushes email onto recentEmails Stack
+    - Maintains multiple data structures for different views
+
+Email removeEmail(string emailId)
+    - Searches emails LinkedList for matching ID
+    - Removes from LinkedList using removeAt()
+    - Returns the removed email
+    - Throws exception if email not found
+
+bool findEmail(string emailId, Email &result)
+    - Searches LinkedList for email by ID
+    - If found, copies email to result parameter
+    - Returns true if found, false otherwise
+
+Email getRecentEmail()
+    - Peeks at top of recentEmails Stack
+    - Returns most recently accessed email
+    - Doesn't remove from stack
+
+DISPLAY FUNCTIONS
+-----------------
+void displayAllEmails()
+    - Iterates through emails LinkedList
+    - Displays each email using Email::display()
+    - Shows emails in chronological order
+
+void displayEmailsByPriority()
+    - Extracts emails from priorityHeap (MaxHeap)
+    - Displays in priority order (highest first)
+    - Shows important emails at top
+
+void clearFolder()
+    - Clears emails LinkedList
+    - Resets folder to empty state
+
+
+================================================================================
+                        6. GRAPH CLASS (Graph.h)
+================================================================================
+
+STRUCTURE
+---------
+GraphNode
+    - Represents a user in social network
+    - Contains userId (email)
+    - Contains adjacentUsers LinkedList (connections)
+    - Contains connectionStrengths LinkedList (parallel to adjacentUsers)
+
+GraphEntry
+    - Internal linked list node
+    - Links userId to GraphNode
+    - Forms linked list of all graph nodes
+
+CONSTRUCTOR & DESTRUCTOR
+------------------------
+Graph()
+    - Initializes empty graph
+    - Sets head to nullptr, size to 0
+
+~Graph()
+    - Traverses GraphEntry linked list
+    - Deletes all GraphNodes and GraphEntries
+    - Prevents memory leaks
+
+PRIVATE HELPER
+--------------
+GraphNode* findNode(string userId)
+    - Searches GraphEntry linked list for user
+    - Returns pointer to GraphNode if found
+    - Returns nullptr if user not in graph
+
+USER MANAGEMENT
+---------------
+void addUser(string userId)
+    - Checks if user already exists
+    - Creates new GraphNode with userId
+    - Creates new GraphEntry and adds to head
+    - Increments size counter
+
+CONNECTION OPERATIONS
+---------------------
+void addConnection(string user1, string user2, int strength)
+    - Finds both users' GraphNodes
+    - Adds user2 to user1's adjacentUsers LinkedList
+    - Adds strength to user1's connectionStrengths LinkedList
+    - Adds user1 to user2's adjacentUsers (bidirectional)
+    - Adds strength to user2's connectionStrengths
+    - Creates symmetric connection
+
+void removeConnection(string user1, string user2)
+    - Finds both users' GraphNodes
+    - Removes user2 from user1's adjacentUsers
+    - Removes corresponding strength
+    - Removes user1 from user2's adjacentUsers
+    - Removes corresponding strength
+    - Breaks bidirectional connection
+
+CONNECTION QUERIES
+------------------
+bool areConnected(string user1, string user2)
+    - Finds user1's GraphNode
+    - Searches user1's adjacentUsers for user2
+    - Returns true if found, false otherwise
+
+int getConnectionStrength(string user1, string user2)
+    - Finds user1's GraphNode
+    - Searches adjacentUsers for user2
+    - Returns corresponding strength from parallel list
+    - Returns 0 if not connected
+
+LinkedList<string> getMutualConnections(string user1, string user2)
+    - Gets both users' adjacentUsers lists
+    - Nested loop to find common connections
+    - Returns LinkedList of mutual friends
+    - Used for "People you may know" feature
+
+UTILITY FUNCTIONS
+-----------------
+int calculateSpamProbability(string sender, string receiver)
+    - Checks if sender and receiver are connected
+    - If connected, returns low spam probability (10 - strength*10)
+    - If not connected, returns high spam probability (80%)
+    - Used for spam filtering
+
+GraphNode* getNode(string userId)
+    - Public accessor to get GraphNode
+    - Calls private findNode()
+    - Used by UI to access adjacentUsers
+
+int getSize()
+    - Returns total number of users in graph
+
+
+================================================================================
+                        7. BINARY SEARCH TREE (BST.h)
+================================================================================
+
+STRUCTURE
+---------
+Node
+    - Contains key (string), value (generic type V)
+    - Contains left and right child pointers
+    - Forms binary tree structure
+
+CONSTRUCTOR & DESTRUCTOR
+------------------------
+BST()
+    - Initializes empty tree
+    - Sets root to nullptr, size to 0
+
+~BST()
+    - Calls clear(root) to deallocate all nodes
+    - Recursive post-order traversal
+    - Prevents memory leaks
+
+PRIVATE HELPERS
+---------------
+Node* insert(Node* node, K key, V value)
+    - Recursive BST insertion
+    - If node is null, creates new node
+    - If key < node->key, recurse left
+    - If key > node->key, recurse right
+    - If key == node->key, updates value
+    - Returns updated node pointer
+
+Node* remove(Node* node, K key)
+    - Recursive BST deletion
+    - Handles 3 cases:
+        1. Node with no children: delete and return null
+        2. Node with one child: return child
+        3. Node with two children: replace with inorder successor
+    - Maintains BST property
+
+Node* search(Node* node, K key)
+    - Recursive BST search
+    - If key matches, returns node
+    - If key < node->key, searches left
+    - If key > node->key, searches right
+    - Returns nullptr if not found
+
+Node* findMin(Node* node)
+    - Finds leftmost node (minimum key)
+    - Used for inorder successor in deletion
+
+void inorder(Node* node, callback function)
+    - Recursive inorder traversal (left, root, right)
+    - Calls callback function for each node
+    - Produces sorted output
+
+void collectToArray(Node* node, K* keys, V* values, int &index, int maxSize)
+    - Recursive inorder traversal
+    - Copies keys and values to arrays
+    - Used for converting BST to array
+
+void collectToList(Node* node, LinkedList<V> &list)
+    - Recursive inorder traversal
+    - Inserts values into LinkedList
+    - Creates sorted list from BST
+
+void clear(Node* node)
+    - Recursive post-order traversal
+    - Deletes all nodes
+    - Deallocates memory
+
+PUBLIC INTERFACE
+----------------
+void insert(K key, V value)
+    - Inserts key-value pair into BST
+    - Calls recursive insert helper
+
+void remove(K key)
+    - Removes node with given key
+    - Calls recursive remove helper
+
+V* search(K key)
+    - Searches for key in BST
+    - Returns pointer to value if found
+    - Returns nullptr if not found
+
+bool contains(K key)
+    - Checks if key exists in BST
+    - Returns true if found, false otherwise
+
+int getSize()
+    - Returns number of nodes in tree
+
+bool isEmpty()
+    - Returns true if tree is empty
+
+void traverse(void (*callback)(K, V))
+    - Performs inorder traversal
+    - Calls callback function for each node
+    - Used for printing or processing all entries
+
+void getAllEntries(K* keys, V* values, int maxSize)
+    - Fills arrays with all keys and values
+    - Sorted order (inorder traversal)
+    - Used for batch operations
+
+void inorderTraversal(LinkedList<V> &list)
+    - Creates sorted LinkedList from BST
+    - Calls collectToList helper
+    - Used for displaying sorted contacts
+
+void clear()
+    - Empties entire tree
+    - Deallocates all nodes
+    - Resets size to 0
+
+
+================================================================================
+                        8. LINKED LIST (LinkedList.h)
+================================================================================
+
+THREE IMPLEMENTATIONS
+---------------------
+1. Singly Linked List (default)
+2. Doubly Linked List
+3. Circular Linked List
+
+SINGLY LINKED LIST
+------------------
+Node Structure:
+    - T data
+    - Node* next
+
+Constructor:
+    - Initializes empty list
+    - Sets head to nullptr, size to 0
+
+Destructor:
+    - Traverses list and deletes all nodes
+
+void insert(T element)
+    - Inserts at head (O(1))
+    - Creates new node
+    - Links to current head
+    - Updates head pointer
+
+void insertAt(int index, T element)
+    - Inserts at specific position
+    - Traverses to index-1
+    - Links new node between nodes
+
+T get(int index)
+    - Retrieves element at index
+    - Traverses from head
+    - Returns data at position
+
+bool remove(T element)
+    - Removes first occurrence of element
+    - Searches for matching data
+    - Unlinks node and deletes
+    - Returns true if removed
+
+T removeAt(int index)
+    - Removes element at index
+    - Handles head removal specially
+    - Unlinks node and returns data
+
+bool isEmpty()
+    - Returns true if head is nullptr
+
+int getSize()
+    - Returns number of elements
+
+void clear()
+    - Deletes all nodes
+    - Resets list to empty
+
+void print()
+    - Displays all elements
+    - Traverses and prints each
+
+Iterator Support:
+    - begin() returns iterator to head
+    - end() returns iterator to nullptr
+    - Supports range-based for loops
+
+DOUBLY LINKED LIST
+------------------
+Node Structure:
+    - T data
+    - Node* next
+    - Node* prev
+
+Additional Features:
+    - Bidirectional traversal
+    - Easier deletion (no need for previous node)
+
+Similar Functions:
+    - insert, insertAt, get, remove, removeAt
+    - All maintain both next AND prev pointers
+
+CIRCULAR LINKED LIST
+--------------------
+Node Structure:
+    - T data
+    - Node* next
+
+Key Difference:
+    - Last node's next points back to head (not nullptr)
+    - Tail pointer maintained
+    - Circular traversal possible
+
+void insert(T element)
+    - Inserts at tail
+    - Maintains circular connection
+    - Updates tail pointer
+
+Similar Functions:
+    - isEmpty, getSize, clear, print
+    - All handle circular nature
+
+
+================================================================================
+                        9. STACK (Stack.h)
+================================================================================
+
+STRUCTURE
+---------
+Node
+    - Contains data of type T
+    - Contains pointer to next node
+    - Forms linked list
+
+CONSTRUCTOR & DESTRUCTOR
+------------------------
+Stack()
+    - Initializes empty stack
+    - Sets top to nullptr, size to 0
+
+~Stack()
+    - Pops all elements
+    - Deallocates all nodes
+
+OPERATIONS
+----------
+void push(T element)
+    - Creates new node with element
+    - Sets new node's next to current top
+    - Updates top to new node
+    - Increments size
+    - O(1) operation
+
+T pop()
+    - Checks if stack is empty (throws exception if empty)
+    - Saves top element's data
+    - Saves pointer to top node
+    - Updates top to next node
+    - Deletes old top node
+    - Decrements size
+    - Returns saved data
+    - O(1) operation
+
+T peek()
+    - Returns top element's data
+    - Does NOT remove element
+    - Throws exception if empty
+    - O(1) operation
+
+bool isEmpty()
+    - Returns true if top is nullptr
+
+int getSize()
+    - Returns number of elements
+
+void clear()
+    - Pops all elements until empty
+    - Deallocates all memory
+
+
+================================================================================
+                        10. QUEUE (Queue.h)
+================================================================================
+
+STRUCTURE
+---------
+Node
+    - Contains data of type T
+    - Contains pointer to next node
+    - Forms linked list
+
+CONSTRUCTOR & DESTRUCTOR
+------------------------
+Queue()
+    - Initializes empty queue
+    - Sets front and rear to nullptr, size to 0
+
+~Queue()
+    - Dequeues all elements
+    - Deallocates all nodes
+
+OPERATIONS
+----------
+void enqueue(T element)
+    - Creates new node with element
+    - If queue empty, front and rear = new node
+    - Otherwise, links rear->next to new node
+    - Updates rear to new node
+    - Increments size
+    - O(1) operation
+
+T dequeue()
+    - Checks if queue is empty (throws exception if empty)
+    - Saves front element's data
+    - Saves pointer to front node
+    - Updates front to next node
+    - If queue becomes empty, sets rear to nullptr
+    - Deletes old front node
+    - Decrements size
+    - Returns saved data
+    - O(1) operation
+
+T front()
+    - Returns front element's data
+    - Does NOT remove element
+    - Throws exception if empty
+    - O(1) operation
+
+bool isEmpty()
+    - Returns true if front is nullptr
+
+int getSize()
+    - Returns number of elements
+
+void clear()
+    - Dequeues all elements until empty
+    - Deallocates all memory
+
+
+================================================================================
+                        11. PRIORITY QUEUE (Heap.h)
+================================================================================
+
+STRUCTURE
+---------
+PriorityItem<T>
+    - Contains data of type T
+    - Contains integer priority
+    - Overloads comparison operators
+
+Internal:
+    - Uses MaxHeap<PriorityItem<T>>
+    - Lower priority number = higher priority
+    - Highest priority item always at root
+
+CONSTRUCTOR
+-----------
+PriorityQueue(int cap)
+    - Creates priority queue with given capacity
+    - Initializes internal MaxHeap
+
+OPERATIONS
+----------
+void enqueue(T element, int priority)
+    - Creates PriorityItem with element and priority
+    - Inserts into heap
+    - Heap automatically maintains priority order
+    - O(log n) operation
+
+T dequeue()
+    - Extracts maximum priority item from heap
+    - Returns the data (not priority)
+    - Throws exception if empty
+    - O(log n) operation
+
+T peek()
+    - Returns highest priority element
+    - Does NOT remove
+    - O(1) operation
+
+bool isEmpty()
+    - Delegates to heap's isEmpty()
+
+int getSize()
+    - Delegates to heap's getSize()
+
+
+================================================================================
+                        12. MAX HEAP (Heap.h)
+================================================================================
+
+STRUCTURE
+---------
+Array-based complete binary tree
+    - Parent at index i
+    - Left child at index 2*i + 1
+    - Right child at index 2*i + 2
+    - Parent of i at (i-1)/2
+
+CONSTRUCTOR & DESTRUCTOR
+------------------------
+MaxHeap(int cap)
+    - Allocates array of given capacity
+    - Sets size to 0
+
+~MaxHeap()
+    - Deallocates array
+
+PRIVATE HELPERS
+---------------
+void heapifyUp(int index)
+    - Maintains heap property after insertion
+    - Compares element with parent
+    - Swaps if element > parent
+    - Recursively moves up
+    - O(log n) operation
+
+void heapifyDown(int index)
+    - Maintains heap property after deletion
+    - Finds larger child
+    - Swaps with larger child if needed
+    - Recursively moves down
+    - O(log n) operation
+
+int parent(int i)
+    - Returns parent index
+
+int leftChild(int i)
+    - Returns left child index
+
+int rightChild(int i)
+    - Returns right child index
+
+void swap(T &a, T &b)
+    - Swaps two elements
+
+OPERATIONS
+----------
+void insert(T element)
+    - Checks if heap is full
+    - Adds element at end of array
+    - Calls heapifyUp to maintain property
+    - Increments size
+    - O(log n) operation
+
+T extractMax()
+    - Returns root (maximum element)
+    - Replaces root with last element
+    - Decrements size
+    - Calls heapifyDown to restore heap
+    - O(log n) operation
+
+T peekMax()
+    - Returns root element
+    - Does NOT remove
+    - O(1) operation
+
+bool isEmpty()
+    - Returns true if size == 0
+
+int getSize()
+    - Returns number of elements
+
+void clear()
+    - Sets size to 0
+    - Does not deallocate array
+
+
+================================================================================
+                        13. ARRAY (Array.h)
+================================================================================
+
+STRUCTURE
+---------
+Dynamic array with fixed capacity
+    - T* data (pointer to array)
+    - int capacity (maximum size)
+    - int size (current number of elements)
+
+CONSTRUCTOR & DESTRUCTOR
+------------------------
+Array(int cap)
+    - Allocates array of given capacity
+    - Sets size to 0
+
+~Array()
+    - Deallocates array
+
+OPERATIONS
+----------
+void add(T element)
+    - Adds element at end
+    - Throws exception if full
+    - Increments size
+    - O(1) operation
+
+T get(int index)
+    - Returns element at index
+    - Throws exception if out of bounds
+    - O(1) operation
+
+void set(int index, T element)
+    - Updates element at index
+    - Throws exception if out of bounds
+    - O(1) operation
+
+bool isFull()
+    - Returns true if size == capacity
+
+bool isEmpty()
+    - Returns true if size == 0
+
+int getSize()
+    - Returns current number of elements
+
+int getCapacity()
+    - Returns maximum capacity
+
+void clear()
+    - Sets size to 0
+    - Does not deallocate array
+
+
+================================================================================
+                        14. FILE HANDLER (FileHandler.h)
+================================================================================
+
+CONSTRUCTOR
+-----------
+FileHandler()
+    - Sets database folder path
+    - Sets users file path
+    - Sets spam words file path
+    - Sets social graph file path
+
+PATH GENERATION
+---------------
+void createDirectory(string path)
+    - Creates directory if it doesn't exist
+    - Uses system-dependent commands
+
+string getUserFolderPath(string userEmail)
+    - Returns path to user's folder
+    - Format: EmailDatabase/[email]/
+
+string getFolderFilePath(string userEmail, string folderName)
+    - Returns path to specific folder file
+    - Format: EmailDatabase/[email]/[FolderName].txt
+
+string getContactsFilePath(string userEmail)
+    - Returns path to user's contacts file
+    - Format: EmailDatabase/[email]/contacts.txt
+
+string getConnectionsFilePath(string userEmail)
+    - Returns path to user's connections file
+    - Format: EmailDatabase/[email]/connections.txt
+
+USER FILE OPERATIONS
+--------------------
+void saveUser(User* user)
+    - Saves single user to users.txt
+    - Appends to file in CSV format
+    - Creates user folder in EmailDatabase
+
+void saveAllUsers(BST<string, User*>* users)
+    - Overwrites users.txt with all users
+    - Iterates through BST using getAllEntries()
+    - Writes each user in CSV format
+
+void loadUsers(BST<string, User*>* users)
+    - Reads users.txt line by line
+    - Parses CSV format
+    - Creates User objects
+    - Inserts into BST with email as key
+
+EMAIL FILE OPERATIONS
+---------------------
+void saveUserEmails(string userEmail, LinkedList<Email>* inbox, sent, drafts, spam, trash, important)
+    - Saves all 6 folders to separate files
+    - Creates EmailDatabase/[email]/ folder structure
+    - Writes each folder as CSV
+
+void loadUserEmails(string userEmail, LinkedList<Email>* allEmails)
+    - Loads emails from all 6 folder files
+    - Parses CSV format
+    - Creates Email objects
+    - Adds to LinkedList
+
+void saveFolderEmails(string userEmail, string folderName, LinkedList<Email>* emails)
+    - Saves single folder to file
+    - Overwrites existing file
+
+void loadFolderEmails(string userEmail, string folderName, LinkedList<Email>* emails)
+    - Loads single folder from file
+    - Appends to provided LinkedList
+
+CONTACT FILE OPERATIONS
+------------------------
+void saveUserContacts(string userEmail, BST<string, Contact>* contacts)
+    - Gets user's contacts file path
+    - Iterates through contacts BST
+    - Writes each contact in CSV format
+    - Format: contactId,name,email,phone,interactionCount
+
+void loadUserContacts(string userEmail, BST<string, Contact>* contacts)
+    - Reads contacts.txt for user
+    - Parses CSV format
+    - Creates Contact objects
+    - Inserts into BST with email as key
+
+CONNECTION FILE OPERATIONS
+---------------------------
+void saveUserConnections(string userEmail, LinkedList<string>* adjacentUsers, LinkedList<int>* strengths)
+    - Gets user's connections file path
+    - Iterates through parallel lists
+    - Writes each connection in CSV format
+    - Format: connectedEmail,strength
+
+void loadUserConnections(string userEmail, LinkedList<string>* adjacentUsers, LinkedList<int>* strengths)
+    - Reads connections.txt for user
+    - Parses CSV format
+    - Adds to adjacentUsers and strengths LinkedLists
+    - Maintains parallel structure
+
+SOCIAL GRAPH FILE OPERATIONS
+-----------------------------
+void saveSocialGraph(Graph* graph)
+    - Saves entire social graph to social_graph.txt
+    - NOT CURRENTLY USED (individual connections files preferred)
+
+void loadSocialGraph(Graph* graph)
+    - Loads social graph from social_graph.txt
+    - NOT CURRENTLY USED (individual connections files preferred)
+
+SPAM WORDS FILE OPERATIONS
+---------------------------
+void saveSpamWords(Array<string>* spamWords)
+    - Writes all spam words to spam_words.txt
+    - One word per line
+
+void loadSpamWords(Array<string>* spamWords)
+    - Reads spam_words.txt
+    - Adds each word to Array
+
+
+================================================================================
+                                    SUMMARY
+================================================================================
+
+TOTAL FUNCTION COUNT: 200+
+
+FUNCTION CATEGORIES:
+- Data Structure Operations: 60+
+- File I/O Operations: 25+
+- User Management: 15+
+- Email Operations: 30+
+- Contact Management: 10+
+- Social Network: 10+
+- Utility Functions: 20+
+- Display Functions: 15+
+- System Operations: 15+
+
+KEY ALGORITHMS USED:
+- Binary Search Tree (insert, delete, search) - O(log n)
+- Graph Traversal (BFS/DFS for connections) - O(V + E)
+- Heap Operations (insert, extractMax) - O(log n)
+- Linked List Operations (insert, delete) - O(1) or O(n)
+- Stack/Queue Operations (push, pop, enqueue, dequeue) - O(1)
+- Array Operations (get, set) - O(1)
+
+DATA PERSISTENCE:
+- All data saved to text files in CSV format
+- Automatic save on logout and program exit
+- Automatic load on login and program start
+- Folder structure mirrors user organization
+
+MEMORY MANAGEMENT:
+- All dynamic allocations properly deallocated
+- Destructors handle cleanup
+- No memory leaks
+- RAII principles followed
+
+================================================================================
+                                END OF DOCUMENT
+================================================================================
