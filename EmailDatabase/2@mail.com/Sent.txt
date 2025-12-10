@@ -1,6 +1,0 @@
-E3010,2@mail.com,1@mail.com,Thanks for the notes,Thanks so much for sharing your notes! They were really helpful.,1733048000,1,0,1,Sent
-E3011,2@mail.com,3@mail.com,Code Review Done,I reviewed your code. Looks good! Just a few minor suggestions.,1733049000,1,0,2,Sent
-E3012,2@mail.com,4@mail.com,Meeting Confirmed,See you at the library at 4 PM tomorrow!,1733050000,1,0,1,Sent
-E3013,2@mail.com,5@mail.com,Repository Link,Here's the GitHub link to our project repository.,1733051000,1,0,2,Sent
-E3014,2@mail.com,6@mail.com,Question Answer,The answer to your question is in chapter 5 of the textbook.,1733052000,1,0,1,Sent
-E3015,2@mail.com,10@mail.com,Study Group Update,Study group is rescheduled to Friday evening.,1733053000,1,0,2,Sent

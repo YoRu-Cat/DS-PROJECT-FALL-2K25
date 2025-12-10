@@ -1,0 +1,2 @@
+ContactId,Name,Email,Phone,InteractionCount
+contact_1765358272,2,2@mail.com,,0
